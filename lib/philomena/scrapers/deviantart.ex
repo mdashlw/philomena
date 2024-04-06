@@ -1,5 +1,5 @@
 defmodule Philomena.Scrapers.Deviantart do
-  @image_regex ~r|data-rh="true" rel="preload" href="([^"]*)" as="image"|
+  @image_regex ~r|src="(https://images-wixmp-ed30a86b8c4ca887773594c2\.wixmp\.com.+?)"|
   @source_regex ~r|rel="canonical" href="([^"]*)"|
   @artist_regex ~r|https://www.deviantart.com/([^/]*)/art|
   @serial_regex ~r|https://www.deviantart.com/(?:.*?)-(\d+)\z|
