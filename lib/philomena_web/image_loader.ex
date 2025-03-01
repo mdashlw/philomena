@@ -58,9 +58,8 @@ defmodule PhilomenaWeb.ImageLoader do
     del = conn.params["del"]
     hidden = conn.params["hidden"]
 
-    [
-      filter
-    ]
+    [filter]
+    |> maybe_unfilter_likes(conn, user)
     |> maybe_show_deleted(show_hidden?, del)
     |> maybe_custom_hide(user, hidden)
     |> hide_non_approved()
@@ -93,6 +92,20 @@ defmodule PhilomenaWeb.ImageLoader do
     do: [%{term: %{hidden_by_user_ids: id}} | filters]
 
   defp maybe_custom_hide(filters, _user, _param),
+    do: filters
+
+  defp maybe_unfilter_likes(filters, %{cookies: %{"unfilter_likes" => "true"}}, %{id: id}),
+    do: [%{
+      bool: %{
+        must: filters,
+        must_not: [
+          %{term: %{upvoter_ids: id}},
+          %{term: %{favourited_by_user_ids: id}}
+        ]
+      }
+    }]
+
+  defp maybe_unfilter_likes(filters, _conn, _user),
     do: filters
 
   # Hide all images that aren't approved from all search queries.
