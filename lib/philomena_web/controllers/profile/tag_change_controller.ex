@@ -42,7 +42,7 @@ defmodule PhilomenaWeb.Profile.TagChangeController do
       |> Keyword.filter(fn {_k, v} -> not is_nil(v) and v != "" end)
 
     render(conn, "index.html",
-      title: "Tag Changes for User `#{user.name}'",
+      title: "Tag Changes for User '#{user.name}'",
       user: user,
       tag_changes: tag_changes,
       pagination_params: pagination_params,

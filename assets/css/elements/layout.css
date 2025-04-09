@@ -426,3 +426,11 @@ figure figcaption {
 .minimal__message__header {
   margin: 0 0 10px;
 }
+
+.right {
+  text-align: right !important ;
+}
+
+.monospace {
+  font-family: monospace;
+}

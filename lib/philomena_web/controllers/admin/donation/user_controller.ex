@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.Admin.Donation.UserController do
     changeset = Donations.change_donation(%Donation{})
 
     render(conn, "index.html",
-      title: "Donations for User `#{user.name}'",
+      title: "Donations for User '#{user.name}'",
       donations: user.donations,
       changeset: changeset
     )

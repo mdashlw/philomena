@@ -39,7 +39,7 @@ defmodule PhilomenaWeb.Profile.SourceChangeController do
       |> Repo.one()
 
     render(conn, "index.html",
-      title: "Source Changes for User `#{user.name}'",
+      title: "Source Changes for User '#{user.name}'",
       user: user,
       source_changes: source_changes,
       image_count: image_count

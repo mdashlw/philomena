@@ -1,0 +1,53 @@
+.block
+  .block__header
+    span.block__header__title
+      | Vote Stats for
+      = link @user.name, to: ~p"/profiles/#{@user}"
+
+  .block__content.flex.flex--center-distributed
+    table.table
+      thead
+        tr
+          th.right #
+          th Tag
+          th.right data-sortable-with-index="true" Faves
+          th.right data-sortable-with-index="true" Upvotes
+          th.right data-sortable-with-index="true" Downvotes
+          th.right data-sortable-with-index="true" Downvotes-Upvotes
+          th.right data-sortable-with-index="true" Hides
+      tbody
+        = for {%{tag: tag, faves: faves, hides: hides, up: up, down: down}, index} <- Enum.with_index(@tag_stats) do
+          tr
+            td.monospace.right
+              = index + 1
+            td
+              = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
+            td.monospace.right
+              = faves
+            td.monospace.right
+              = up
+            td.monospace.right
+              = down
+            td.monospace.right
+              = down - up
+            td.monospace.right
+              = hides
+    / div
+    /   h4 Faves
+    /   = render PhilomenaWeb.Profile.VoteView, "_tag_table.html", tags: @faves, conn: @conn
+
+    / div
+    /   h4 Upvotes
+    /   = render PhilomenaWeb.Profile.VoteView, "_tag_table.html", tags: @upvotes, conn: @conn
+
+    / div
+    /   h4 Downvotes
+    /   = render PhilomenaWeb.Profile.VoteView, "_tag_table.html", tags: @downvotes, conn: @conn
+
+    / div
+    /   h4 Downvotes-Upvotes
+    /   = render PhilomenaWeb.Profile.VoteView, "_tag_table.html", tags: @downvotes_minus_upvotes, conn: @conn
+
+    / div
+    /   h4 Hides
+    /   = render PhilomenaWeb.Profile.VoteView, "_tag_table.html", tags: @hides, conn: @conn

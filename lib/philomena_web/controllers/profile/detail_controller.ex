@@ -29,7 +29,7 @@ defmodule PhilomenaWeb.Profile.DetailController do
       |> Repo.all()
 
     render(conn, "index.html",
-      title: "Profile Details for User `#{user.name}'",
+      title: "Profile Details for User '#{user.name}'",
       mod_notes: mod_notes,
       name_changes: name_changes
     )

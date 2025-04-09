@@ -1,0 +1,15 @@
+table.table
+  thead
+    tr
+      th.right #
+      th Tag
+      th.right Count
+  tbody
+    = for {%{tag: tag, count: count}, index} <- Enum.with_index(@tags) do
+      tr
+        td.monospace.right
+          = index + 1
+        td
+          = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
+        td.monospace.right
+          = count

@@ -4,6 +4,7 @@
 
 import { whenReady } from './utils/dom';
 
+import { setupTables } from './tables';
 import { listenAutocomplete } from './autocomplete';
 import { loadBooruData } from './booru';
 import { registerEvents } from './boorujs';
@@ -13,26 +14,26 @@ import { setupComments } from './comment';
 import { setupDupeReports } from './duplicate_reports';
 import { setSesCookie } from './fp';
 import { setupGalleryEditing } from './galleries';
-import { initImagesClientside } from './imagesclientside';
 import { bindImageTarget } from './image_expansion';
+import { initImagesClientside } from './imagesclientside';
+import { setupToolbar } from './markdowntoolbar';
 import { setupEvents } from './misc';
 import { setupNotifications } from './notifications';
+import { warnAboutPMs } from './pmwarning';
+import { pollOptionCreator } from './poll';
 import { setupPreviews } from './preview';
 import { setupQuickTag } from './quick-tag';
 import { initializeListener } from './resizablemedia';
+import { setupSearch } from './search';
 import { setupSettings } from './settings';
 import { listenForKeys } from './shortcuts';
+import { imageSourcesCreator } from './sources';
+import { hideStaffTools } from './staffhider';
 import { initTagDropdown } from './tags';
 import { setupTagListener } from './tagsinput';
 import { setupTagEvents } from './tagsmisc';
 import { setupTimestamps } from './timeago';
 import { setupImageUpload } from './upload';
-import { setupSearch } from './search';
-import { setupToolbar } from './markdowntoolbar';
-import { hideStaffTools } from './staffhider';
-import { pollOptionCreator } from './poll';
-import { warnAboutPMs } from './pmwarning';
-import { imageSourcesCreator } from './sources';
 
 const functions = [
   loadBooruData,
@@ -64,6 +65,7 @@ const functions = [
   pollOptionCreator,
   warnAboutPMs,
   imageSourcesCreator,
+  setupTables,
 ];
 
 whenReady(() => {

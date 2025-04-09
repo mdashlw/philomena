@@ -290,6 +290,8 @@ defmodule PhilomenaWeb.Router do
       resources "/ip_history", Profile.IpHistoryController, only: [:index]
       resources "/fp_history", Profile.FpHistoryController, only: [:index]
       resources "/aliases", Profile.AliasController, only: [:index]
+
+      resources "/votes", Profile.VoteController, only: [:index]
     end
 
     scope "/filters", Filter, as: :filter do
