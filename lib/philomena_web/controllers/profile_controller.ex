@@ -39,7 +39,6 @@ defmodule PhilomenaWeb.ProfileController do
   plug :set_mod_notes
 
   def show(conn, _params) do
-    current_filter = conn.assigns.current_filter
     current_user = conn.assigns.current_user
     user = Repo.preload(conn.assigns.user, [:forced_filter])
 
