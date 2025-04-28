@@ -1,5 +1,6 @@
 defmodule Philomena.Comments.Query do
   alias PhilomenaQuery.Parse.Parser
+  alias Philomena.Tags.Tag
 
   defp user_id_transform(_ctx, data) do
     case Integer.parse(data) do
@@ -86,7 +87,8 @@ defmodule Philomena.Comments.Query do
           "deleted" => "hidden_from_users",
           "image.deleted" => "image.hidden_from_users"
         }),
-      transforms: Map.drop(fields[:transforms], ~W(author user_id))
+      transforms: Map.drop(fields[:transforms], ~W(author user_id)),
+      normalizations: %{"image.tags" => &Tag.clean_tag_name/1}
     )
   end
 
