@@ -79,9 +79,13 @@ defmodule Philomena.Comments.Query do
     Keyword.merge(fields,
       literal_fields: ~W(image_id user_id author fingerprint),
       ip_fields: ~W(ip),
-      bool_fields: ~W(anonymous deleted),
+      bool_fields: ~W(anonymous deleted image.deleted approved image.approved),
       custom_fields: fields[:custom_fields] -- ~W(author user_id),
-      aliases: Map.merge(fields[:aliases], %{"deleted" => "hidden_from_users"}),
+      aliases:
+        Map.merge(fields[:aliases], %{
+          "deleted" => "hidden_from_users",
+          "image.deleted" => "image.hidden_from_users"
+        }),
       transforms: Map.drop(fields[:transforms], ~W(author user_id))
     )
   end
