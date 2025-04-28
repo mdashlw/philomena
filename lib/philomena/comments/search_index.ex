@@ -34,6 +34,7 @@ defmodule Philomena.Comments.SearchIndex do
           image: %{
             properties: %{
               tag_ids: %{type: "keyword"},
+              tags: %{type: "keyword"},
               hidden_from_users: %{type: "boolean"},
               approved: %{type: "boolean"}
             }
@@ -59,6 +60,7 @@ defmodule Philomena.Comments.SearchIndex do
       approved: comment.approved,
       image: %{
         tag_ids: comment.image.tags |> Enum.map(& &1.id),
+        tags: comment.image.tags |> Enum.map(& &1.name),
         hidden_from_users: comment.image.hidden_from_users,
         approved: comment.image.approved
       }
