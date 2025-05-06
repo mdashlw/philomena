@@ -101,11 +101,13 @@ defmodule Philomena.Users do
         user
         |> User.successful_attempt_changeset()
         |> Repo.update!()
+        |> reindex_user()
 
       true ->
         user
         |> User.failed_attempt_changeset()
         |> Repo.update!()
+        |> reindex_user()
         |> maybe_send_unlock_instructions(unlock_url_fun)
 
         nil
@@ -355,8 +357,13 @@ defmodule Philomena.Users do
     |> Ecto.Multi.delete_all(:tokens, UserToken.user_and_contexts_query(user, :all))
     |> Repo.transaction()
     |> case do
-      {:ok, %{user: user}} -> {:ok, user}
-      {:error, :user, changeset, _} -> {:error, changeset}
+      {:ok, %{user: user}} ->
+        reindex_user(user)
+
+        {:ok, user}
+
+      {:error, :user, changeset, _} ->
+        {:error, changeset}
     end
   end
 
@@ -533,8 +540,13 @@ defmodule Philomena.Users do
     |> Ecto.Multi.delete_all(:tokens, UserToken.user_and_contexts_query(user, :all))
     |> Repo.transaction()
     |> case do
-      {:ok, %{user: user}} -> {:ok, user}
-      {:error, :user, changeset, _} -> {:error, changeset}
+      {:ok, %{user: user}} ->
+        reindex_user(user)
+
+        {:ok, user}
+
+      {:error, :user, changeset, _} ->
+        {:error, changeset}
     end
   end
 
@@ -609,6 +621,7 @@ defmodule Philomena.Users do
     user
     |> User.spoiler_type_changeset(attrs)
     |> Repo.update()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -627,6 +640,7 @@ defmodule Philomena.Users do
     user
     |> User.settings_changeset(attrs)
     |> Repo.update()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -679,6 +693,7 @@ defmodule Philomena.Users do
     user
     |> User.watched_tags_changeset(watched_tag_ids)
     |> Repo.update()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -696,6 +711,7 @@ defmodule Philomena.Users do
     user
     |> User.watched_tags_changeset(watched_tag_ids)
     |> Repo.update()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -855,6 +871,7 @@ defmodule Philomena.Users do
     user
     |> User.api_key_changeset()
     |> Repo.update()
+    |> reindex_after_update()
   end
 
   @doc """
@@ -922,6 +939,7 @@ defmodule Philomena.Users do
     user
     |> User.clear_recent_filters_changeset()
     |> Repo.update()
+    |> reindex_after_update()
   end
 
   defp load_with_roles(query) do
