@@ -9,8 +9,8 @@ defmodule Philomena.Galleries.Query do
 
   defp anonymous_fields do
     [
-      int_fields: ~W(id image_count watcher_count),
-      numeric_fields: ~W(image_ids watcher_ids creator_id),
+      int_fields: ~W(id image_count subscriber_count),
+      numeric_fields: ~W(image_ids creator_id),
       literal_fields: ~W(title creator),
       date_fields: ~W(created_at updated_at),
       ngram_fields: ~W(description),

@@ -21,7 +21,7 @@ defmodule Philomena.Galleries.SearchIndex do
           # keyword
           id: %{type: "integer"},
           image_count: %{type: "integer"},
-          watcher_count: %{type: "integer"},
+          subscriber_count: %{type: "integer"},
           updated_at: %{type: "date"},
           created_at: %{type: "date"},
           title: %{type: "keyword"},
@@ -30,8 +30,6 @@ defmodule Philomena.Galleries.SearchIndex do
           creator_id: %{type: "keyword"},
           creator: %{type: "keyword"},
           image_ids: %{type: "keyword"},
-          # ???
-          watcher_ids: %{type: "keyword"},
           description: %{type: "text", analyzer: "snowball"},
           anonymous: %{type: "boolean"}
         }
@@ -44,8 +42,7 @@ defmodule Philomena.Galleries.SearchIndex do
     %{
       id: gallery.id,
       image_count: gallery.image_count,
-      watcher_count: length(gallery.subscribers),
-      watcher_ids: Enum.map(gallery.subscribers, & &1.id),
+      subscriber_count: length(gallery.subscribers),
       updated_at: gallery.updated_at,
       created_at: gallery.created_at,
       title: String.downcase(gallery.title),
