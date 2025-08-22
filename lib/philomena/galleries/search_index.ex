@@ -32,7 +32,8 @@ defmodule Philomena.Galleries.SearchIndex do
           image_ids: %{type: "keyword"},
           # ???
           watcher_ids: %{type: "keyword"},
-          description: %{type: "text", analyzer: "snowball"}
+          description: %{type: "text", analyzer: "snowball"},
+          anonymous: %{type: "boolean"}
         }
       }
     }
@@ -53,7 +54,8 @@ defmodule Philomena.Galleries.SearchIndex do
       creator_id: if(!gallery.anonymous, do: gallery.user_id),
       creator: if(!!gallery.user and !gallery.anonymous, do: String.downcase(gallery.user.name)),
       image_ids: Enum.map(gallery.interactions, & &1.image_id),
-      description: gallery.description
+      description: gallery.description,
+      anonymous: gallery.anonymous
     }
   end
 
