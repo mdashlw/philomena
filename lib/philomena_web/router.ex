@@ -171,6 +171,8 @@ defmodule PhilomenaWeb.Router do
   scope "/", PhilomenaWeb do
     pipe_through [:browser, :ensure_totp, :require_authenticated_user]
 
+    resources "/derped", DerpedController, only: [:index]
+
     scope "/notifications", Notification, as: :notification do
       resources "/unread", UnreadController, only: [:index]
       resources "/categories", CategoryController, only: [:show]
@@ -290,6 +292,8 @@ defmodule PhilomenaWeb.Router do
       resources "/ip_history", Profile.IpHistoryController, only: [:index]
       resources "/fp_history", Profile.FpHistoryController, only: [:index]
       resources "/aliases", Profile.AliasController, only: [:index]
+
+      resources "/derped", Profile.DerpedController, only: [:index]
     end
 
     scope "/filters", Filter, as: :filter do
