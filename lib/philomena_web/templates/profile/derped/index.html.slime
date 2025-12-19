@@ -184,7 +184,7 @@ p
     = Float.round(@user_new_reports.avg_time / 3600, 2)
   | hours to resolve them.
 
-h3 Most Faved Character Tags
+h3 Most Faved Characters
 .block
   table.table
     thead
@@ -202,3 +202,42 @@ h3 Most Faved Character Tags
           td
             | #
             = rank
+
+h3 Most Faved Artists
+.block
+  table.table
+    thead
+      tr
+        th Tag
+        th Faves
+        th Rank among all users
+    tbody
+      = for %{tag: tag, faves: faves, rank: rank} <- @user_most_faved_artist_tags do
+        tr
+          td
+            = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
+          td
+            = number_with_delimiter(faves)
+          td
+            | #
+            = rank
+
+h3 Most Faved OCs
+.block
+  table.table
+    thead
+      tr
+        th Tag
+        th Faves
+        th Rank among all users
+    tbody
+      = for %{tag: tag, faves: faves, rank: rank} <- @user_most_faved_oc_tags do
+        tr
+          td
+            = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
+          td
+            = number_with_delimiter(faves)
+          td
+            | #
+            = rank
+            
