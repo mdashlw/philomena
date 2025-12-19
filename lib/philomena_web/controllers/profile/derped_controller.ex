@@ -247,7 +247,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
                 s.rank
          FROM stats s
          JOIN tags t ON t.id = s.tag_id
-         WHERE s.user_id = $3
+         WHERE s.user_id = $2
          ORDER BY s.faves DESC
          FETCH FIRST 20 ROWS WITH TIES",
         [@start_of_year, user.id]
