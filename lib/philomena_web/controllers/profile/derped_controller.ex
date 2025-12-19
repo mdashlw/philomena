@@ -240,21 +240,48 @@ defmodule PhilomenaWeb.Profile.DerpedController do
             JOIN tags t ON t.id = it.tag_id
             WHERE if.created_at >= $1
               AND if.created_at <= $2
-              AND t.category = 'character'
+              AND t.category IN ('character', 'origin', 'oc')
             GROUP BY it.tag_id,
                      if.user_id)
-         SELECT t.*,
-                s.faves,
-                s.rank
-         FROM stats s
-         JOIN tags t ON t.id = s.tag_id
-         WHERE s.user_id = $3
-         ORDER BY s.faves DESC
-         FETCH FIRST 25 ROWS WITH TIES",
+         (
+           SELECT t.*,
+                  s.faves,
+                  s.rank
+           FROM stats s
+           JOIN tags t ON t.id = s.tag_id
+           WHERE s.user_id = $3
+             AND t.category = 'character'
+           ORDER BY s.faves DESC
+           FETCH FIRST 10 ROWS WITH TIES
+         )
+         UNION ALL
+         (
+           SELECT t.*,
+                  s.faves,
+                  s.rank
+           FROM stats s
+           JOIN tags t ON t.id = s.tag_id
+           WHERE s.user_id = $3
+             AND t.category = 'origin'
+           ORDER BY s.faves DESC
+           FETCH FIRST 10 ROWS WITH TIES
+         )
+         UNION ALL
+         (
+           SELECT t.*,
+                  s.faves,
+                  s.rank
+           FROM stats s
+           JOIN tags t ON t.id = s.tag_id
+           WHERE s.user_id = $3
+             AND t.category = 'oc'
+           ORDER BY s.faves DESC
+           FETCH FIRST 10 ROWS WITH TIES
+         )",
         [@start_of_year, @end_of_year, user.id]
       )
 
-    user_most_faved_character_tags =
+    user_most_faved_tags =
       result.rows
       |> Enum.map(fn row ->
         %{
@@ -263,82 +290,11 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           rank: Enum.at(row, Enum.find_index(result.columns, &(&1 == "rank")))
         }
       end)
+      |> Enum.group_by(& &1.tag.category)
 
-    result =
-      Repo.query!(
-        "WITH stats AS
-           (SELECT it.tag_id,
-                   if.user_id,
-                   count(*) AS faves,
-                   dense_rank() OVER (PARTITION BY it.tag_id
-                                      ORDER BY count(*) DESC) AS rank
-            FROM image_faves IF
-            JOIN image_taggings it ON it.image_id = if.image_id
-            JOIN tags t ON t.id = it.tag_id
-            WHERE if.created_at >= $1
-              AND if.created_at <= $2
-              AND t.category = 'origin'
-            GROUP BY it.tag_id,
-                     if.user_id)
-         SELECT t.*,
-                s.faves,
-                s.rank
-         FROM stats s
-         JOIN tags t ON t.id = s.tag_id
-         WHERE s.user_id = $3
-         ORDER BY s.faves DESC
-         FETCH FIRST 25 ROWS WITH TIES",
-        [@start_of_year, @end_of_year, user.id]
-      )
-
-    user_most_faved_artist_tags =
-      result.rows
-      |> Enum.map(fn row ->
-        %{
-          tag: Repo.load(Tag, {result.columns, row}),
-          faves: Enum.at(row, Enum.find_index(result.columns, &(&1 == "faves"))),
-          rank: Enum.at(row, Enum.find_index(result.columns, &(&1 == "rank")))
-        }
-      end)
-      |> Enum.filter(&String.contains?(&1.tag.name, ":"))
-
-    result =
-      Repo.query!(
-        "WITH stats AS
-           (SELECT it.tag_id,
-                   if.user_id,
-                   count(*) AS faves,
-                   dense_rank() OVER (PARTITION BY it.tag_id
-                                      ORDER BY count(*) DESC) AS rank
-            FROM image_faves IF
-            JOIN image_taggings it ON it.image_id = if.image_id
-            JOIN tags t ON t.id = it.tag_id
-            WHERE if.created_at >= $1
-              AND if.created_at <= $2
-              AND t.category = 'oc'
-            GROUP BY it.tag_id,
-                     if.user_id)
-         SELECT t.*,
-                s.faves,
-                s.rank
-         FROM stats s
-         JOIN tags t ON t.id = s.tag_id
-         WHERE s.user_id = $3
-         ORDER BY s.faves DESC
-         FETCH FIRST 25 ROWS WITH TIES",
-        [@start_of_year, @end_of_year, user.id]
-      )
-
-    user_most_faved_oc_tags =
-      result.rows
-      |> Enum.map(fn row ->
-        %{
-          tag: Repo.load(Tag, {result.columns, row}),
-          faves: Enum.at(row, Enum.find_index(result.columns, &(&1 == "faves"))),
-          rank: Enum.at(row, Enum.find_index(result.columns, &(&1 == "rank")))
-        }
-      end)
-      |> Enum.filter(&String.starts_with?(&1.tag.name, "oc:"))
+    user_most_faved_character_tags = Map.get(user_most_faved_tags, "character", [])
+    user_most_faved_artist_tags = Map.get(user_most_faved_tags, "origin", [])
+    user_most_faved_oc_tags = Map.get(user_most_faved_tags, "oc", [])
 
     render(
       conn,
