@@ -227,31 +227,41 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           }
       )
 
-    user_most_faved_character_tags =
-      Repo.all(
-        from s in subquery(
-               from f in ImageFave,
-                 join: it in Tagging,
-                 on: it.image_id == f.image_id,
-                 join: t in assoc(it, :tag),
-                 where: f.created_at >= ^@start_of_year and f.created_at <= ^@end_of_year,
-                 where: t.category == "character",
-                 group_by: [t.id, f.user_id],
-                 select: %{
-                   tag_id: t.id,
-                   user_id: f.user_id,
-                   faves: count(),
-                   rank: dense_rank() |> over(partition_by: t.id, order_by: [desc: count()])
-                 }
-             ),
-             join: t in Tag,
-             on: t.id == s.tag_id,
-             where: s.user_id == ^user.id,
-             order_by: [desc: s.faves],
-             limit: 20,
-             with_ties: true,
-             select: %{tag: t, faves: s.faves, rank: s.rank}
+    result =
+      Repo.query!(
+        "WITH stats AS
+           (SELECT it.tag_id,
+                   if.user_id,
+                   count(*) AS faves,
+                   dense_rank() OVER (PARTITION BY it.tag_id
+                                      ORDER BY count(*) DESC) AS rank
+            FROM image_faves IF
+            JOIN image_taggings it ON it.image_id = if.image_id
+            JOIN tags t ON t.id = it.tag_id
+            WHERE if.created_at >= $1
+              AND if.created_at <= $2
+              AND t.category = 'character'
+            GROUP BY it.tag_id,
+                     if.user_id)
+         SELECT t.*,
+                s.faves,
+                s.rank
+         FROM stats s
+         JOIN tags t ON t.id = s.tag_id
+         WHERE s.user_id = $3
+         ORDER BY s.faves DESC
+         FETCH FIRST 20 ROWS WITH TIES",
+        [@start_of_year, @end_of_year, user.id]
       )
+
+    user_most_faved_character_tags =
+      Enum.map(result.rows, fn row ->
+        %{
+          tag: Repo.load(Tag, {result.columns, row}),
+          faves: Enum.at(row, Enum.find_index(result.columns, &(&1 == "faves"))),
+          rank: Enum.at(row, Enum.find_index(result.columns, &(&1 == "rank")))
+        }
+      end)
 
     render(
       conn,
