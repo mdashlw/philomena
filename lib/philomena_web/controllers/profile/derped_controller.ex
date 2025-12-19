@@ -45,12 +45,15 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           select: count()
       )
 
-    global_new_comment_count =
+    global_new_comments =
       Repo.one(
         from(
           from c in Comment,
             where: c.created_at >= ^@start_of_year and c.created_at <= ^@end_of_year,
-            select: count()
+            select: %{
+              count: count(),
+              image_count: count(c.image_id, :distinct)
+            }
         )
       )
 
@@ -61,11 +64,14 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           select: count()
       )
 
-    global_new_post_count =
+    global_new_posts =
       Repo.one(
         from p in Post,
           where: p.created_at >= ^@start_of_year and p.created_at <= ^@end_of_year,
-          select: count()
+          select: %{
+            count: count(),
+            topic_count: count(p.topic_id, :distinct)
+          }
       )
 
     global_new_image_fave_count =
@@ -82,18 +88,24 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           select: count()
       )
 
-    global_new_tag_change_count =
+    global_new_tag_changes =
       Repo.one(
         from c in TagChange,
           where: c.created_at >= ^@start_of_year and c.created_at <= ^@end_of_year,
-          select: count()
+          select: %{
+            count: count(),
+            image_count: count(c.image_id, :distinct)
+          }
       )
 
-    global_new_source_change_count =
+    global_new_source_changes =
       Repo.one(
         from c in SourceChange,
           where: c.created_at >= ^@start_of_year and c.created_at <= ^@end_of_year,
-          select: count()
+          select: %{
+            count: count(),
+            image_count: count(c.image_id, :distinct)
+          }
       )
 
     global_new_report_count =
@@ -103,6 +115,113 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           select: count()
       )
 
+    user_new_images =
+      Repo.one(
+        from i in Image,
+          where:
+            i.created_at >= ^@start_of_year and i.created_at <= ^@end_of_year and
+              i.user_id == ^user.id,
+          select: %{
+            total_count: count(),
+            anonymous_count: count() |> filter(i.anonymous)
+          }
+      )
+
+    user_new_comments =
+      Repo.one(
+        from c in Comment,
+          where:
+            c.created_at >= ^@start_of_year and c.created_at <= ^@end_of_year and
+              c.user_id == ^user.id,
+          select: %{
+            total_count: count(),
+            anonymous_count: count() |> filter(c.anonymous)
+          }
+      )
+
+    user_new_fave_count =
+      Repo.one(
+        from f in ImageFave,
+          where:
+            f.created_at >= ^@start_of_year and f.created_at <= ^@end_of_year and
+              f.user_id == ^user.id,
+          select: count()
+      )
+
+    user_new_votes =
+      Repo.one(
+        from v in ImageVote,
+          where:
+            v.created_at >= ^@start_of_year and v.created_at <= ^@end_of_year and
+              v.user_id == ^user.id,
+          select: %{
+            total_count: count(),
+            up_count: count() |> filter(v.up),
+            down_count: count() |> filter(not v.up)
+          }
+      )
+
+    user_new_topic_count =
+      Repo.one(
+        from t in Topic,
+          where:
+            t.created_at >= ^@start_of_year and t.created_at <= ^@end_of_year and
+              t.user_id == ^user.id,
+          select: count()
+      )
+
+    user_new_posts =
+      Repo.one(
+        from p in Post,
+          where:
+            p.created_at >= ^@start_of_year and p.created_at <= ^@end_of_year and
+              p.user_id == ^user.id,
+          select: %{
+            count: count(),
+            topic_count: count(p.topic_id, :distinct)
+          }
+      )
+
+    user_new_tag_changes =
+      Repo.one(
+        from c in TagChange,
+          where:
+            c.created_at >= ^@start_of_year and c.created_at <= ^@end_of_year and
+              c.user_id == ^user.id,
+          select: %{
+            count: count(),
+            image_count: count(c.image_id, :distinct)
+          }
+      )
+
+    user_new_source_changes =
+      Repo.one(
+        from c in SourceChange,
+          where:
+            c.created_at >= ^@start_of_year and c.created_at <= ^@end_of_year and
+              c.user_id == ^user.id,
+          select: %{
+            count: count(),
+            image_count: count(c.image_id, :distinct)
+          }
+      )
+
+    user_new_reports =
+      Repo.one(
+        from r in Report,
+          where:
+            r.created_at >= ^@start_of_year and r.created_at <= ^@end_of_year and
+              r.user_id == ^user.id,
+          select: %{
+            count: count(),
+            avg_time:
+              fragment(
+                "COALESCE(?, 0::double precision)",
+                avg(fragment("EXTRACT(EPOCH FROM ? - ?)", r.updated_at, r.created_at))
+              )
+          }
+      )
+
     render(
       conn,
       "index.html",
@@ -110,14 +229,23 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       token: token,
       global_new_user_count: global_new_user_count,
       global_new_image_count: global_new_image_count,
-      global_new_comment_count: global_new_comment_count,
+      global_new_comments: global_new_comments,
       global_new_topic_count: global_new_topic_count,
-      global_new_post_count: global_new_post_count,
+      global_new_posts: global_new_posts,
       global_new_image_fave_count: global_new_image_fave_count,
       global_new_image_vote_count: global_new_image_vote_count,
-      global_new_tag_change_count: global_new_tag_change_count,
-      global_new_source_change_count: global_new_source_change_count,
-      global_new_report_count: global_new_report_count
+      global_new_tag_changes: global_new_tag_changes,
+      global_new_source_changes: global_new_source_changes,
+      global_new_report_count: global_new_report_count,
+      user_new_images: user_new_images,
+      user_new_comments: user_new_comments,
+      user_new_fave_count: user_new_fave_count,
+      user_new_votes: user_new_votes,
+      user_new_topic_count: user_new_topic_count,
+      user_new_posts: user_new_posts,
+      user_new_tag_changes: user_new_tag_changes,
+      user_new_source_changes: user_new_source_changes,
+      user_new_reports: user_new_reports
     )
   end
 

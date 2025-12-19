@@ -23,8 +23,11 @@ h3 Comments
 p
   ' A total of
   span.stat>
-    = number_with_delimiter(@global_new_comment_count)
-  | new comments were posted this year.
+    = number_with_delimiter(@global_new_comments.count)
+  ' new comments were posted this year, across
+  span.stat>
+    = number_with_delimiter(@global_new_comments.image_count)
+  | images.
 
 h3 Topics
 p
@@ -37,8 +40,11 @@ h3 Posts
 p
   ' A total of
   span.stat>
-    = number_with_delimiter(@global_new_post_count)
-  | new posts were created this year.
+    = number_with_delimiter(@global_new_posts.count)
+  ' new posts were created this year, across
+  span.stat>
+    = number_with_delimiter(@global_new_posts.topic_count)
+  | topics.
 
 h3 Image Faves
 p
@@ -58,12 +64,114 @@ h3 Tag Changes
 p
   ' A total of
   span.stat>
-    = number_with_delimiter(@global_new_tag_change_count)
-  | new tag changes were made this year.
+    = number_with_delimiter(@global_new_tag_changes.count)
+  ' new tag changes were made this year, affecting
+  span.stat>
+    = number_with_delimiter(@global_new_tag_changes.image_count)
+  | images.
 
 h3 Source Changes
 p
   ' A total of
   span.stat>
-    = number_with_delimiter(@global_new_source_change_count)
-  | new source changes were made this year.
+    = number_with_delimiter(@global_new_source_changes.count)
+  ' new source changes were made this year, affecting
+  span.stat>
+    = number_with_delimiter(@global_new_source_changes.image_count)
+  | images.
+
+h3 Reports
+p
+  ' A total of
+  span.stat>
+    = number_with_delimiter(@global_new_report_count)
+  | new reports were filed this year.
+
+h2 Your Statistics
+
+h3 Images
+p
+  ' You uploaded a total of
+  span.stat>
+    = number_with_delimiter(@user_new_images.total_count)
+  ' new images this year, of which
+  span.stat>
+    = number_with_delimiter(@user_new_images.anonymous_count)
+  | were anonymous.
+
+h3 Comments
+p
+  ' You posted a total of
+  span.stat>
+    = number_with_delimiter(@user_new_comments.total_count)
+  ' new comments this year, of which
+  span.stat>
+    = number_with_delimiter(@user_new_comments.anonymous_count)
+  | were anonymous.
+
+h3 Image Faves
+p
+  ' You faved a total of
+  span.stat>
+    = number_with_delimiter(@user_new_fave_count)
+  | images this year.
+
+h3 Image Votes
+p
+  ' You cast a total of
+  span.stat>
+    = number_with_delimiter(@user_new_votes.total_count)
+  ' image votes this year, of which
+  span.stat>
+    = number_with_delimiter(@user_new_votes.up_count)
+  ' were upvotes and
+  span.stat>
+    = number_with_delimiter(@user_new_votes.down_count)
+  | were downvotes.
+
+h3 Topics
+p
+  ' You created a total of
+  span.stat>
+    = number_with_delimiter(@user_new_topic_count)
+  | new topics this year.
+
+h3 Posts
+p
+  ' You created a total of
+  span.stat>
+    = number_with_delimiter(@user_new_posts.count)
+  ' new posts this year, across
+  span.stat>
+    = number_with_delimiter(@user_new_posts.topic_count)
+  | topics.
+
+h3 Tag Changes
+p
+  ' You made a total of
+  span.stat>
+    = number_with_delimiter(@user_new_tag_changes.count)
+  ' tag changes this year, affecting
+  span.stat>
+    = number_with_delimiter(@user_new_tag_changes.image_count)
+  | images.
+
+h3 Source Changes
+p
+  ' You made a total of
+  span.stat>
+    = number_with_delimiter(@user_new_source_changes.count)
+  ' source changes this year, affecting
+  span.stat>
+    = number_with_delimiter(@user_new_source_changes.image_count)
+  | images.
+
+h3 Reports
+p
+  ' You filed a total of
+  span.stat>
+    = number_with_delimiter(@user_new_reports.count)
+  ' reports this year. It took us on average
+  span.stat>
+    = Float.round(@user_new_reports.avg_time / 3600, 2)
+  | hours to resolve them.
