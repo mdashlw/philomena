@@ -239,7 +239,6 @@ defmodule PhilomenaWeb.Profile.DerpedController do
             JOIN image_taggings it ON it.image_id = if.image_id
             JOIN tags t ON t.id = it.tag_id
             WHERE if.created_at >= $1
-              AND if.created_at <= $2
               AND t.category = 'character'
             GROUP BY it.tag_id,
                      if.user_id)
@@ -251,7 +250,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
          WHERE s.user_id = $3
          ORDER BY s.faves DESC
          FETCH FIRST 20 ROWS WITH TIES",
-        [@start_of_year, @end_of_year, user.id]
+        [@start_of_year, user.id]
       )
 
     user_most_faved_character_tags =
