@@ -1,4 +1,6 @@
-h1 Derped 2025
+h1
+  ' Derped 2025 for
+  = @user.name
 p
   ' Share
   = link "this link", to: ~p"/profiles/#{@user}/derped?token=#{@token}"
