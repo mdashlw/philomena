@@ -11,6 +11,8 @@ defmodule PhilomenaWeb.Profile.DerpedController do
   alias Philomena.TagChanges.TagChange
   alias Philomena.SourceChanges.SourceChange
   alias Philomena.Reports.Report
+  alias Philomena.Images.Tagging
+  alias Philomena.Tags.Tag
   alias Philomena.Repo
   import Ecto.Query
 
@@ -135,7 +137,8 @@ defmodule PhilomenaWeb.Profile.DerpedController do
               c.user_id == ^user.id,
           select: %{
             total_count: count(),
-            anonymous_count: count() |> filter(c.anonymous)
+            anonymous_count: count() |> filter(c.anonymous),
+            image_count: count(c.image_id, :distinct)
           }
       )
 
@@ -177,7 +180,8 @@ defmodule PhilomenaWeb.Profile.DerpedController do
             p.created_at >= ^@start_of_year and p.created_at <= ^@end_of_year and
               p.user_id == ^user.id,
           select: %{
-            count: count(),
+            total_count: count(),
+            anonymous_count: count() |> filter(p.anonymous),
             topic_count: count(p.topic_id, :distinct)
           }
       )
@@ -222,6 +226,31 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           }
       )
 
+    user_most_faved_character_tags =
+      Repo.all(
+        from s in subquery(
+               from f in ImageFave,
+                 join: it in Tagging,
+                 on: it.image_id == f.image_id,
+                 join: t in assoc(it, :tag),
+                 where: f.created_at >= ^@start_of_year and f.created_at <= ^@end_of_year,
+                 where: t.category == "character",
+                 group_by: [t.id, f.user_id],
+                 select: %{
+                   tag_id: t.id,
+                   user_id: f.user_id,
+                   faves: count(),
+                   rank: dense_rank() |> over(partition_by: t.id, order_by: [desc: count()])
+                 }
+             ),
+             join: t in Tag,
+             on: t.id == s.tag_id,
+             where: s.user_id == ^user.id,
+             order_by: [desc: s.faves],
+             limit: 20,
+             select: %{tag: t, faves: s.faves, rank: s.rank}
+      )
+
     render(
       conn,
       "index.html",
@@ -245,7 +274,8 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       user_new_posts: user_new_posts,
       user_new_tag_changes: user_new_tag_changes,
       user_new_source_changes: user_new_source_changes,
-      user_new_reports: user_new_reports
+      user_new_reports: user_new_reports,
+      user_most_faved_character_tags: user_most_faved_character_tags
     )
   end
 

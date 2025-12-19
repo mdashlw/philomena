@@ -1,7 +1,7 @@
 h1 Derped 2025
 p
   ' Share
-  = link "this link", to: ~p"/profiles/#{@current_user}/derped?token=#{@token}"
+  = link "this link", to: ~p"/profiles/#{@user}/derped?token=#{@token}"
 
 h2 Global Statistics
 
@@ -107,7 +107,10 @@ p
   ' new comments this year, of which
   span.stat>
     = number_with_delimiter(@user_new_comments.anonymous_count)
-  | were anonymous.
+  ' were anonymous, across
+  span.stat>
+    = number_with_delimiter(@user_new_comments.image_count)
+  | images.
 
 h3 Image Faves
 p
@@ -140,8 +143,11 @@ h3 Posts
 p
   ' You created a total of
   span.stat>
-    = number_with_delimiter(@user_new_posts.count)
-  ' new posts this year, across
+    = number_with_delimiter(@user_new_posts.total_count)
+  ' new posts this year, of which
+  span.stat>
+    = number_with_delimiter(@user_new_posts.anonymous_count)
+  ' were anonymous, across
   span.stat>
     = number_with_delimiter(@user_new_posts.topic_count)
   | topics.
@@ -175,3 +181,22 @@ p
   span.stat>
     = Float.round(@user_new_reports.avg_time / 3600, 2)
   | hours to resolve them.
+
+h3 Most Faved Character Tags
+.block
+  table.table
+    thead
+      tr
+        th Tag
+        th Faves
+        th Rank among all users
+    tbody
+      = for %{tag: tag, faves: faves, rank: rank} <- @user_most_faved_character_tags do
+        tr
+          td
+            = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
+          td
+            = number_with_delimiter(faves)
+          td
+            | #
+            = rank
