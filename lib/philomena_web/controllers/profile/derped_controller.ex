@@ -23,8 +23,8 @@ defmodule PhilomenaWeb.Profile.DerpedController do
   plug :verify_authorized
 
   @year 2025
-  @start_of_year ~D[2025-01-01]
-  @end_of_year ~D[2025-12-31]
+  @start_of_year ~U[2025-01-01 00:00:00Z]
+  @end_of_year ~U[2025-12-31 23:59:59Z]
 
   def index(conn, _params) do
     user = conn.assigns.user
@@ -122,17 +122,18 @@ defmodule PhilomenaWeb.Profile.DerpedController do
   end
 
   defp verify_authorized(conn, _opts) do
-    target = conn.assigns.user
     current = conn.assigns.current_user
+    user = conn.assigns.user
+    user_id = user.id
 
     cond do
-      match?(%{id: ^target.id}, current) ->
+      match?(%{id: ^user_id}, current) ->
         conn
 
       match?(%{role: role} when role in ~w(moderator admin), current) ->
         conn
 
-      match?(%{"token" => share_token(target)}, conn.params) ->
+      conn.params["token"] and conn.params["token"] == share_token(user) ->
         conn
 
       true ->
@@ -153,9 +154,9 @@ defmodule PhilomenaWeb.Profile.DerpedController do
         message,
         salt,
         100,
-        4
+        8
       )
 
-    token
+    :binary.encode_hex(token, :lowercase)
   end
 end

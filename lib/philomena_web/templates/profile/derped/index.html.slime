@@ -1,58 +1,69 @@
 h1 Derped 2025
-  p
-    ' Share
-    = link "this link", to: ~p"/profiles/#{@user}/derped?token=#{@token}"
-  h2 Global Statistics
-    h3 Users
-    p
-      ' A total of
-      = @global_new_user_count
-      | new users were created this year.
-    h3 Images
-    p
-      ' A total of
-      span.stat>
-        = number_with_delimiter(@global_new_image_count)
-      | new images were uploaded this year.
-    h3 Comments
-    p
-      ' A total of
-      span.stat>
-        = number_with_delimiter(@global_new_comment_count)
-      | new comments were posted this year.
-    h3 Topics
-    p
-      ' A total of
-      span.stat>
-        = number_with_delimiter(@global_new_topic_count)
-      | new topics were created this year.
-    h3 Posts
-    p
-      ' A total of
-      span.stat>
-        = number_with_delimiter(@global_new_post_count)
-      | new posts were created this year.
-    h3 Image Faves
-    p
-      ' A total of
-      span.stat>
-        = number_with_delimiter(@global_new_image_fave_count)
-      | new image faves were added this year.
-    h3 Image Votes
-    p
-      ' A total of
-      span.stat>
-        = number_with_delimiter(@global_new_image_vote_count)
-      | new image votes were cast this year.
-    h3 Tag Changes
-    p
-      ' A total of
-      span.stat>
-        = number_with_delimiter(@global_new_tag_change_count)
-      | new tag changes were made this year.
-    h3 Source Changes
-    p
-      ' A total of
-      span.stat>
-        = number_with_delimiter(@global_new_source_change_count)
-      | new source changes were made this year.
+p
+  ' Share
+  = link "this link", to: ~p"/profiles/#{@current_user}/derped?token=#{@token}"
+
+h2 Global Statistics
+
+h3 Users
+p
+  ' A total of
+  span.stat>
+    = number_with_delimiter(@global_new_user_count)
+  | new users were created this year.
+
+h3 Images
+p
+  ' A total of
+  span.stat>
+    = number_with_delimiter(@global_new_image_count)
+  | new images were uploaded this year.
+
+h3 Comments
+p
+  ' A total of
+  span.stat>
+    = number_with_delimiter(@global_new_comment_count)
+  | new comments were posted this year.
+
+h3 Topics
+p
+  ' A total of
+  span.stat>
+    = number_with_delimiter(@global_new_topic_count)
+  | new topics were created this year.
+
+h3 Posts
+p
+  ' A total of
+  span.stat>
+    = number_with_delimiter(@global_new_post_count)
+  | new posts were created this year.
+
+h3 Image Faves
+p
+  ' A total of
+  span.stat>
+    = number_with_delimiter(@global_new_image_fave_count)
+  | new image faves were added this year.
+
+h3 Image Votes
+p
+  ' A total of
+  span.stat>
+    = number_with_delimiter(@global_new_image_vote_count)
+  | new image votes were cast this year.
+
+h3 Tag Changes
+p
+  ' A total of
+  span.stat>
+    = number_with_delimiter(@global_new_tag_change_count)
+  | new tag changes were made this year.
+
+h3 Source Changes
+p
+  ' A total of
+  span.stat>
+    = number_with_delimiter(@global_new_source_change_count)
+  | new source changes were made this year.
