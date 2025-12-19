@@ -263,6 +263,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
            JOIN tags t ON t.id = s.tag_id
            WHERE s.user_id = $3
              AND t.category = 'origin'
+             AND t.name LIKE '%:%'
            ORDER BY s.faves DESC
            FETCH FIRST 10 ROWS WITH TIES
          )
@@ -275,6 +276,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
            JOIN tags t ON t.id = s.tag_id
            WHERE s.user_id = $3
              AND t.category = 'oc'
+             AND t.name LIKE 'oc:%'
            ORDER BY s.faves DESC
            FETCH FIRST 10 ROWS WITH TIES
          )",
