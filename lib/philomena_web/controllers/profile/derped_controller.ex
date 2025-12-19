@@ -16,7 +16,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
   alias Philomena.Repo
   import Ecto.Query
 
-  plug :load_and_authorize_resource,
+  plug :load_resource,
     model: User,
     id_field: "slug",
     id_name: "profile_id",
@@ -222,6 +222,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
               fragment(
                 "COALESCE(?, 0::double precision)",
                 avg(fragment("EXTRACT(EPOCH FROM ? - ?)", r.updated_at, r.created_at))
+                |> filter(not r.open)
               )
           }
       )
@@ -252,34 +253,40 @@ defmodule PhilomenaWeb.Profile.DerpedController do
     # )
     user_most_faved_character_tags =
       Repo.all(
-        from f in ImageFave,
-          join: it in Tagging,
-          on: it.image_id == f.image_id,
-          join: t in assoc(it, :tag),
-          where: f.created_at >= ^@start_of_year and f.created_at <= ^@end_of_year,
-          where:
-            it.tag_id in subquery(
+        from t in Tag,
+          join:
+            s in subquery(
               from f in ImageFave,
                 join: it in Tagging,
                 on: it.image_id == f.image_id,
-                join: t in assoc(it, :tag),
                 where: f.created_at >= ^@start_of_year and f.created_at <= ^@end_of_year,
-                where: f.user_id == ^user.id,
-                where: t.category == "character",
-                group_by: it.tag_id,
-                select: it.tag_id,
-                order_by: [desc: count()],
-                limit: 20,
-                with_ties: true
+                where:
+                  it.tag_id in subquery(
+                    from f in ImageFave,
+                      join: it in Tagging,
+                      on: it.image_id == f.image_id,
+                      join: t in assoc(it, :tag),
+                      where: f.created_at >= ^@start_of_year and f.created_at <= ^@end_of_year,
+                      where: f.user_id == ^user.id,
+                      where: t.category == "character",
+                      group_by: it.tag_id,
+                      select: it.tag_id,
+                      order_by: [desc: count()],
+                      limit: 20,
+                      with_ties: true
+                  ),
+                group_by: [it.tag_id, f.user_id],
+                select: %{
+                  tag_id: it.tag_id,
+                  user_id: f.user_id,
+                  faves: selected_as(count(), :faves),
+                  rank: dense_rank() |> over(partition_by: it.tag_id, order_by: [desc: count()])
+                },
+                order_by: [desc: selected_as(:faves)]
             ),
-          group_by: [t.id, f.user_id],
-          having: f.user_id == ^user.id,
-          select: %{
-            tag: t,
-            faves: selected_as(count(), :count),
-            rank: dense_rank() |> over(partition_by: t.id, order_by: [desc: count()])
-          },
-          order_by: [desc: selected_as(:count)]
+          on: t.id == s.tag_id,
+          where: s.user_id == ^user.id,
+          select: %{tag: t, faves: s.faves, rank: s.rank}
       )
 
     render(
