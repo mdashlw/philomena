@@ -239,6 +239,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
             JOIN image_taggings it ON it.image_id = if.image_id
             JOIN tags t ON t.id = it.tag_id
             WHERE if.created_at >= $1
+              AND if.created_at <= $2
               AND t.category = 'character'
             GROUP BY it.tag_id,
                      if.user_id)
@@ -247,14 +248,15 @@ defmodule PhilomenaWeb.Profile.DerpedController do
                 s.rank
          FROM stats s
          JOIN tags t ON t.id = s.tag_id
-         WHERE s.user_id = $2
+         WHERE s.user_id = $3
          ORDER BY s.faves DESC
-         FETCH FIRST 20 ROWS WITH TIES",
-        [@start_of_year, user.id]
+         FETCH FIRST 25 ROWS WITH TIES",
+        [@start_of_year, @end_of_year, user.id]
       )
 
     user_most_faved_character_tags =
-      Enum.map(result.rows, fn row ->
+      result.rows
+      |> Enum.map(fn row ->
         %{
           tag: Repo.load(Tag, {result.columns, row}),
           faves: Enum.at(row, Enum.find_index(result.columns, &(&1 == "faves"))),
@@ -274,8 +276,8 @@ defmodule PhilomenaWeb.Profile.DerpedController do
             JOIN image_taggings it ON it.image_id = if.image_id
             JOIN tags t ON t.id = it.tag_id
             WHERE if.created_at >= $1
+              AND if.created_at <= $2
               AND t.category = 'origin'
-              AND t.name LIKE '%:%'
             GROUP BY it.tag_id,
                      if.user_id)
          SELECT t.*,
@@ -283,20 +285,22 @@ defmodule PhilomenaWeb.Profile.DerpedController do
                 s.rank
          FROM stats s
          JOIN tags t ON t.id = s.tag_id
-         WHERE s.user_id = $2
+         WHERE s.user_id = $3
          ORDER BY s.faves DESC
-         FETCH FIRST 20 ROWS WITH TIES",
-        [@start_of_year, user.id]
+         FETCH FIRST 25 ROWS WITH TIES",
+        [@start_of_year, @end_of_year, user.id]
       )
 
     user_most_faved_artist_tags =
-      Enum.map(result.rows, fn row ->
+      result.rows
+      |> Enum.map(fn row ->
         %{
           tag: Repo.load(Tag, {result.columns, row}),
           faves: Enum.at(row, Enum.find_index(result.columns, &(&1 == "faves"))),
           rank: Enum.at(row, Enum.find_index(result.columns, &(&1 == "rank")))
         }
       end)
+      |> Enum.filter(&String.contains?(&1.tag.name, ":"))
 
     result =
       Repo.query!(
@@ -310,8 +314,8 @@ defmodule PhilomenaWeb.Profile.DerpedController do
             JOIN image_taggings it ON it.image_id = if.image_id
             JOIN tags t ON t.id = it.tag_id
             WHERE if.created_at >= $1
+              AND if.created_at <= $2
               AND t.category = 'oc'
-              AND t.name LIKE 'oc:%'
             GROUP BY it.tag_id,
                      if.user_id)
          SELECT t.*,
@@ -319,20 +323,22 @@ defmodule PhilomenaWeb.Profile.DerpedController do
                 s.rank
          FROM stats s
          JOIN tags t ON t.id = s.tag_id
-         WHERE s.user_id = $2
+         WHERE s.user_id = $3
          ORDER BY s.faves DESC
-         FETCH FIRST 20 ROWS WITH TIES",
-        [@start_of_year, user.id]
+         FETCH FIRST 25 ROWS WITH TIES",
+        [@start_of_year, @end_of_year, user.id]
       )
 
     user_most_faved_oc_tags =
-      Enum.map(result.rows, fn row ->
+      result.rows
+      |> Enum.map(fn row ->
         %{
           tag: Repo.load(Tag, {result.columns, row}),
           faves: Enum.at(row, Enum.find_index(result.columns, &(&1 == "faves"))),
           rank: Enum.at(row, Enum.find_index(result.columns, &(&1 == "rank")))
         }
       end)
+      |> Enum.filter(&String.starts_with?(&1.tag.name, "oc:"))
 
     render(
       conn,
