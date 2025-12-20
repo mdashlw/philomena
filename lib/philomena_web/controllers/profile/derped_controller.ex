@@ -40,263 +40,171 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           select: count()
       )
 
-    global_new_image_count =
+    global_images =
+      Repo.one!(
+        from s in "derped_global_images",
+          select: map(s, [:count, :distinct_user_count])
+      )
+
+    global_comments =
+      Repo.one!(
+        from s in "derped_global_comments",
+          select: map(s, [:count, :distinct_image_count, :distinct_user_count])
+      )
+
+    global_topics =
+      Repo.one!(
+        from s in "derped_global_topics",
+          select: map(s, [:count, :distinct_user_count])
+      ) || %{count: 0, distinct_user_count: 0}
+
+    global_posts =
+      Repo.one!(
+        from s in "derped_global_posts",
+          select: map(s, [:count, :distinct_topic_count, :distinct_user_count])
+      )
+
+    global_faves =
+      Repo.one!(
+        from s in "derped_global_faves",
+          select: map(s, [:count, :distinct_image_count, :distinct_user_count])
+      )
+
+    global_votes =
+      Repo.one!(
+        from s in "derped_global_votes",
+          select:
+            map(s, [
+              :total_count,
+              :up_count,
+              :down_count,
+              :distinct_image_count,
+              :distinct_user_count
+            ])
+      )
+
+    global_tag_changes =
+      Repo.one!(
+        from s in "derped_global_tag_changes",
+          select: map(s, [:count, :distinct_image_count])
+      )
+
+    global_source_changes =
+      Repo.one!(
+        from s in "derped_global_source_changes",
+          select: map(s, [:count, :distinct_image_count])
+      )
+
+    global_reports =
+      Repo.one!(
+        from s in "derped_global_reports",
+          select: map(s, [:count, :distinct_user_count])
+      )
+
+    user_images =
       Repo.one(
-        from i in Image,
-          where: i.created_at >= ^@start_of_year and i.created_at <= ^@end_of_year,
-          select: count()
-      )
+        from s in "derped_user_images",
+          where: s.user_id == ^user.id,
+          select: map(s, [:count, :rank, :ntile])
+      ) || %{count: 0, rank: nil, ntile: nil}
 
-    global_new_comments =
+    user_comments =
       Repo.one(
-        from(
-          from c in Comment,
-            where: c.created_at >= ^@start_of_year and c.created_at <= ^@end_of_year,
-            select: %{
-              count: count(),
-              image_count: count(c.image_id, :distinct)
-            }
-        )
-      )
+        from s in "derped_user_comments",
+          where: s.user_id == ^user.id,
+          select: map(s, [:count, :distinct_image_count, :rank, :ntile])
+      ) || %{count: 0, distinct_image_count: 0, rank: nil, ntile: nil}
 
-    global_new_topic_count =
+    user_topics =
       Repo.one(
-        from t in Topic,
-          where: t.created_at >= ^@start_of_year and t.created_at <= ^@end_of_year,
-          select: count()
-      )
+        from s in "derped_user_topics",
+          where: s.user_id == ^user.id,
+          select: map(s, [:count, :rank, :ntile])
+      ) || %{count: 0, rank: nil, ntile: nil}
 
-    global_new_posts =
+    user_posts =
       Repo.one(
-        from p in Post,
-          where: p.created_at >= ^@start_of_year and p.created_at <= ^@end_of_year,
-          select: %{
-            count: count(),
-            topic_count: count(p.topic_id, :distinct)
-          }
-      )
+        from s in "derped_user_posts",
+          where: s.user_id == ^user.id,
+          select: map(s, [:count, :distinct_topic_count, :rank, :ntile])
+      ) || %{count: 0, distinct_topic_count: 0, rank: nil, ntile: nil}
 
-    global_new_image_fave_count =
+    user_faves =
       Repo.one(
-        from f in ImageFave,
-          where: f.created_at >= ^@start_of_year and f.created_at <= ^@end_of_year,
-          select: count()
-      )
+        from s in "derped_user_faves",
+          where: s.user_id == ^user.id,
+          select: map(s, [:count, :rank, :ntile])
+      ) || %{count: 0, rank: nil, ntile: nil}
 
-    global_new_image_vote_count =
+    user_votes =
       Repo.one(
-        from v in ImageVote,
-          where: v.created_at >= ^@start_of_year and v.created_at <= ^@end_of_year,
-          select: count()
-      )
+        from s in "derped_user_votes",
+          where: s.user_id == ^user.id,
+          select: map(s, [:total_count, :up_count, :down_count, :rank, :ntile])
+      ) || %{total_count: 0, up_count: 0, down_count: 0, rank: nil, ntile: nil}
 
-    global_new_tag_changes =
+    user_tag_changes =
       Repo.one(
-        from c in TagChange,
-          where: c.created_at >= ^@start_of_year and c.created_at <= ^@end_of_year,
-          select: %{
-            count: count(),
-            image_count: count(c.image_id, :distinct)
-          }
-      )
+        from s in "derped_user_tag_changes",
+          where: s.user_id == ^user.id,
+          select: map(s, [:count, :distinct_image_count, :rank, :ntile])
+      ) || %{count: 0, distinct_image_count: 0, rank: nil, ntile: nil}
 
-    global_new_source_changes =
+    user_source_changes =
       Repo.one(
-        from c in SourceChange,
-          where: c.created_at >= ^@start_of_year and c.created_at <= ^@end_of_year,
-          select: %{
-            count: count(),
-            image_count: count(c.image_id, :distinct)
-          }
-      )
+        from s in "derped_user_source_changes",
+          where: s.user_id == ^user.id,
+          select: map(s, [:count, :distinct_image_count, :rank, :ntile])
+      ) || %{count: 0, distinct_image_count: 0, rank: nil, ntile: nil}
 
-    global_new_report_count =
+    user_reports =
       Repo.one(
-        from r in Report,
-          where: r.created_at >= ^@start_of_year and r.created_at <= ^@end_of_year,
-          select: count()
+        from s in "derped_user_reports",
+          where: s.user_id == ^user.id,
+          select: map(s, [:count, :avg_time, :rank, :ntile])
+      ) || %{count: 0, avg_time: 0, rank: nil, ntile: nil}
+
+    user_top_faved_character_tags =
+      Repo.all(
+        from s in "derped_faved_tags",
+          join: t in Tag,
+          on: t.id == s.tag_id,
+          where: s.user_id == ^user.id,
+          where: t.category == "character",
+          select: %{tag: t},
+          select_merge: map(s, [:faves, :rank, :ntile]),
+          order_by: [desc: s.faves, asc: s.rank, desc: t.images_count, asc: t.name],
+          limit: 10,
+          with_ties: true
       )
 
-    user_new_images =
-      Repo.one(
-        from i in Image,
-          where:
-            i.created_at >= ^@start_of_year and i.created_at <= ^@end_of_year and
-              i.user_id == ^user.id,
-          select: %{
-            total_count: count(),
-            anonymous_count: count() |> filter(i.anonymous)
-          }
+    user_top_faved_artist_tags =
+      Repo.all(
+        from s in "derped_faved_tags",
+          join: t in Tag,
+          on: t.id == s.tag_id,
+          where: s.user_id == ^user.id,
+          where: t.category == "origin" and like(t.name, "%:%"),
+          select: %{tag: t},
+          select_merge: map(s, [:faves, :rank, :ntile]),
+          order_by: [desc: s.faves, asc: s.rank, desc: t.images_count, asc: t.name],
+          limit: 10,
+          with_ties: true
       )
 
-    user_new_comments =
-      Repo.one(
-        from c in Comment,
-          where:
-            c.created_at >= ^@start_of_year and c.created_at <= ^@end_of_year and
-              c.user_id == ^user.id,
-          select: %{
-            total_count: count(),
-            anonymous_count: count() |> filter(c.anonymous),
-            image_count: count(c.image_id, :distinct)
-          }
+    user_top_faved_oc_tags =
+      Repo.all(
+        from s in "derped_faved_tags",
+          join: t in Tag,
+          on: t.id == s.tag_id,
+          where: s.user_id == ^user.id,
+          where: t.category == "oc" and like(t.name, "oc:%"),
+          select: %{tag: t},
+          select_merge: map(s, [:faves, :rank, :ntile]),
+          order_by: [desc: s.faves, asc: s.rank, desc: t.images_count, asc: t.name],
+          limit: 10,
+          with_ties: true
       )
-
-    user_new_fave_count =
-      Repo.one(
-        from f in ImageFave,
-          where:
-            f.created_at >= ^@start_of_year and f.created_at <= ^@end_of_year and
-              f.user_id == ^user.id,
-          select: count()
-      )
-
-    user_new_votes =
-      Repo.one(
-        from v in ImageVote,
-          where:
-            v.created_at >= ^@start_of_year and v.created_at <= ^@end_of_year and
-              v.user_id == ^user.id,
-          select: %{
-            total_count: count(),
-            up_count: count() |> filter(v.up),
-            down_count: count() |> filter(not v.up)
-          }
-      )
-
-    user_new_topic_count =
-      Repo.one(
-        from t in Topic,
-          where:
-            t.created_at >= ^@start_of_year and t.created_at <= ^@end_of_year and
-              t.user_id == ^user.id,
-          select: count()
-      )
-
-    user_new_posts =
-      Repo.one(
-        from p in Post,
-          where:
-            p.created_at >= ^@start_of_year and p.created_at <= ^@end_of_year and
-              p.user_id == ^user.id,
-          select: %{
-            total_count: count(),
-            anonymous_count: count() |> filter(p.anonymous),
-            topic_count: count(p.topic_id, :distinct)
-          }
-      )
-
-    user_new_tag_changes =
-      Repo.one(
-        from c in TagChange,
-          where:
-            c.created_at >= ^@start_of_year and c.created_at <= ^@end_of_year and
-              c.user_id == ^user.id,
-          select: %{
-            count: count(),
-            image_count: count(c.image_id, :distinct)
-          }
-      )
-
-    user_new_source_changes =
-      Repo.one(
-        from c in SourceChange,
-          where:
-            c.created_at >= ^@start_of_year and c.created_at <= ^@end_of_year and
-              c.user_id == ^user.id,
-          select: %{
-            count: count(),
-            image_count: count(c.image_id, :distinct)
-          }
-      )
-
-    user_new_reports =
-      Repo.one(
-        from r in Report,
-          where:
-            r.created_at >= ^@start_of_year and r.created_at <= ^@end_of_year and
-              r.user_id == ^user.id,
-          select: %{
-            count: count(),
-            avg_time:
-              fragment(
-                "COALESCE(?, 0::double precision)",
-                avg(fragment("EXTRACT(EPOCH FROM ? - ?)", r.updated_at, r.created_at))
-                |> filter(not r.open)
-              )
-          }
-      )
-
-    result =
-      Repo.query!(
-        "WITH stats AS
-           (SELECT it.tag_id,
-                   if.user_id,
-                   count(*) AS faves,
-                   dense_rank() OVER (PARTITION BY it.tag_id
-                                      ORDER BY count(*) DESC) AS rank
-            FROM image_faves IF
-            JOIN image_taggings it ON it.image_id = if.image_id
-            JOIN tags t ON t.id = it.tag_id
-            WHERE if.created_at >= $1
-              AND if.created_at <= $2
-              AND t.category IN ('character', 'origin', 'oc')
-            GROUP BY it.tag_id,
-                     if.user_id)
-         (
-           SELECT t.*,
-                  s.faves,
-                  s.rank
-           FROM stats s
-           JOIN tags t ON t.id = s.tag_id
-           WHERE s.user_id = $3
-             AND t.category = 'character'
-           ORDER BY s.faves DESC
-           FETCH FIRST 10 ROWS WITH TIES
-         )
-         UNION ALL
-         (
-           SELECT t.*,
-                  s.faves,
-                  s.rank
-           FROM stats s
-           JOIN tags t ON t.id = s.tag_id
-           WHERE s.user_id = $3
-             AND t.category = 'origin'
-             AND t.name LIKE '%:%'
-           ORDER BY s.faves DESC
-           FETCH FIRST 10 ROWS WITH TIES
-         )
-         UNION ALL
-         (
-           SELECT t.*,
-                  s.faves,
-                  s.rank
-           FROM stats s
-           JOIN tags t ON t.id = s.tag_id
-           WHERE s.user_id = $3
-             AND t.category = 'oc'
-             AND t.name LIKE 'oc:%'
-           ORDER BY s.faves DESC
-           FETCH FIRST 10 ROWS WITH TIES
-         )",
-        [@start_of_year, @end_of_year, user.id]
-      )
-
-    user_most_faved_tags =
-      result.rows
-      |> Enum.map(fn row ->
-        %{
-          tag: Repo.load(Tag, {result.columns, row}),
-          faves: Enum.at(row, Enum.find_index(result.columns, &(&1 == "faves"))),
-          rank: Enum.at(row, Enum.find_index(result.columns, &(&1 == "rank")))
-        }
-      end)
-      |> Enum.group_by(& &1.tag.category)
-
-    user_most_faved_character_tags = Map.get(user_most_faved_tags, "character", [])
-    user_most_faved_artist_tags = Map.get(user_most_faved_tags, "origin", [])
-    user_most_faved_oc_tags = Map.get(user_most_faved_tags, "oc", [])
 
     render(
       conn,
@@ -304,27 +212,27 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       title: "Derped #{@year} for User `#{user.name}'",
       token: token,
       global_new_user_count: global_new_user_count,
-      global_new_image_count: global_new_image_count,
-      global_new_comments: global_new_comments,
-      global_new_topic_count: global_new_topic_count,
-      global_new_posts: global_new_posts,
-      global_new_image_fave_count: global_new_image_fave_count,
-      global_new_image_vote_count: global_new_image_vote_count,
-      global_new_tag_changes: global_new_tag_changes,
-      global_new_source_changes: global_new_source_changes,
-      global_new_report_count: global_new_report_count,
-      user_new_images: user_new_images,
-      user_new_comments: user_new_comments,
-      user_new_fave_count: user_new_fave_count,
-      user_new_votes: user_new_votes,
-      user_new_topic_count: user_new_topic_count,
-      user_new_posts: user_new_posts,
-      user_new_tag_changes: user_new_tag_changes,
-      user_new_source_changes: user_new_source_changes,
-      user_new_reports: user_new_reports,
-      user_most_faved_character_tags: user_most_faved_character_tags,
-      user_most_faved_artist_tags: user_most_faved_artist_tags,
-      user_most_faved_oc_tags: user_most_faved_oc_tags
+      global_images: global_images,
+      global_comments: global_comments,
+      global_topics: global_topics,
+      global_posts: global_posts,
+      global_faves: global_faves,
+      global_votes: global_votes,
+      global_tag_changes: global_tag_changes,
+      global_source_changes: global_source_changes,
+      global_reports: global_reports,
+      user_images: user_images,
+      user_comments: user_comments,
+      user_topics: user_topics,
+      user_posts: user_posts,
+      user_faves: user_faves,
+      user_votes: user_votes,
+      user_tag_changes: user_tag_changes,
+      user_source_changes: user_source_changes,
+      user_reports: user_reports,
+      user_top_faved_character_tags: user_top_faved_character_tags,
+      user_top_faved_artist_tags: user_top_faved_artist_tags,
+      user_top_faved_oc_tags: user_top_faved_oc_tags
     )
   end
 

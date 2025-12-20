@@ -18,76 +18,109 @@ h3 Images
 p
   ' A total of
   span.stat>
-    = number_with_delimiter(@global_new_image_count)
-  | new images were uploaded this year.
+    = number_with_delimiter(@global_images.count)
+  ' new images were uploaded this year, by
+  span.stat>
+    = number_with_delimiter(@global_images.distinct_user_count)
+  | users.
 
 h3 Comments
 p
   ' A total of
   span.stat>
-    = number_with_delimiter(@global_new_comments.count)
+    = number_with_delimiter(@global_comments.count)
   ' new comments were posted this year, across
   span.stat>
-    = number_with_delimiter(@global_new_comments.image_count)
-  | images.
+    = number_with_delimiter(@global_comments.distinct_image_count)
+  ' images, by
+  span.stat>
+    = number_with_delimiter(@global_comments.distinct_user_count)
+  | users.
 
 h3 Topics
 p
   ' A total of
   span.stat>
-    = number_with_delimiter(@global_new_topic_count)
-  | new topics were created this year.
+    = number_with_delimiter(@global_topics.count)
+  ' new topics were created this year, by
+  span.stat>
+    = number_with_delimiter(@global_topics.distinct_user_count)
+  | users.
 
 h3 Posts
 p
   ' A total of
   span.stat>
-    = number_with_delimiter(@global_new_posts.count)
+    = number_with_delimiter(@global_posts.count)
   ' new posts were created this year, across
   span.stat>
-    = number_with_delimiter(@global_new_posts.topic_count)
-  | topics.
+    = number_with_delimiter(@global_posts.distinct_topic_count)
+  ' topics, by
+  span.stat>
+    = number_with_delimiter(@global_posts.distinct_user_count)
+  | users.
 
 h3 Image Faves
 p
   ' A total of
   span.stat>
-    = number_with_delimiter(@global_new_image_fave_count)
-  | new image faves were added this year.
+    = number_with_delimiter(@global_faves.count)
+  ' new image faves were added this year, across
+  span.stat>
+    = number_with_delimiter(@global_faves.distinct_image_count)
+  ' images, by
+  span.stat>
+    = number_with_delimiter(@global_faves.distinct_user_count)
+  | users.
 
 h3 Image Votes
 p
   ' A total of
   span.stat>
-    = number_with_delimiter(@global_new_image_vote_count)
-  | new image votes were cast this year.
+    = number_with_delimiter(@global_votes.total_count)
+  ' new image votes were cast this year, of which
+  span.stat>
+    = number_with_delimiter(@global_votes.up_count)
+  ' were upvotes and
+  span.stat>
+    = number_with_delimiter(@global_votes.down_count)
+  ' were downvotes, across
+  span.stat>
+    = number_with_delimiter(@global_votes.distinct_image_count)
+  ' images, by
+  span.stat>
+    = number_with_delimiter(@global_votes.distinct_user_count)
+  | users.
 
 h3 Tag Changes
 p
   ' A total of
   span.stat>
-    = number_with_delimiter(@global_new_tag_changes.count)
+    = number_with_delimiter(@global_tag_changes.count)
   ' new tag changes were made this year, affecting
   span.stat>
-    = number_with_delimiter(@global_new_tag_changes.image_count)
+    = number_with_delimiter(@global_tag_changes.distinct_image_count)
   | images.
 
 h3 Source Changes
 p
   ' A total of
   span.stat>
-    = number_with_delimiter(@global_new_source_changes.count)
+    = number_with_delimiter(@global_source_changes.count)
   ' new source changes were made this year, affecting
   span.stat>
-    = number_with_delimiter(@global_new_source_changes.image_count)
+    = number_with_delimiter(@global_source_changes.distinct_image_count)
   | images.
 
 h3 Reports
 p
   ' A total of
   span.stat>
-    = number_with_delimiter(@global_new_report_count)
-  | new reports were filed this year.
+    = number_with_delimiter(@global_reports.count)
+  ' new reports were filed this year, by
+  span.stat>
+    = number_with_delimiter(@global_reports.distinct_user_count)
+  | users.
 
 h2 Your Statistics
 
@@ -95,96 +128,96 @@ h3 Images
 p
   ' You uploaded a total of
   span.stat>
-    = number_with_delimiter(@user_new_images.total_count)
-  ' new images this year, of which
-  span.stat>
-    = number_with_delimiter(@user_new_images.anonymous_count)
-  | were anonymous.
+    = number_with_delimiter(@user_images.count)
+  ' new images this year.
+  = ranked(@user_images)
 
 h3 Comments
 p
   ' You posted a total of
   span.stat>
-    = number_with_delimiter(@user_new_comments.total_count)
-  ' new comments this year, of which
+    = number_with_delimiter(@user_comments.count)
+  ' new comments this year, across
   span.stat>
-    = number_with_delimiter(@user_new_comments.anonymous_count)
-  ' were anonymous, across
-  span.stat>
-    = number_with_delimiter(@user_new_comments.image_count)
-  | images.
+    = number_with_delimiter(@user_comments.distinct_image_count)
+  ' images.
+  = ranked(@user_comments)
 
 h3 Image Faves
 p
   ' You faved a total of
   span.stat>
-    = number_with_delimiter(@user_new_fave_count)
+    = number_with_delimiter(@user_faves.count)
   | images this year.
+  = ranked(@user_faves)
 
 h3 Image Votes
 p
   ' You cast a total of
   span.stat>
-    = number_with_delimiter(@user_new_votes.total_count)
+    = number_with_delimiter(@user_votes.total_count)
   ' image votes this year, of which
   span.stat>
-    = number_with_delimiter(@user_new_votes.up_count)
+    = number_with_delimiter(@user_votes.up_count)
   ' were upvotes and
   span.stat>
-    = number_with_delimiter(@user_new_votes.down_count)
+    = number_with_delimiter(@user_votes.down_count)
   | were downvotes.
+  = ranked(@user_votes)
 
 h3 Topics
 p
   ' You created a total of
   span.stat>
-    = number_with_delimiter(@user_new_topic_count)
+    = number_with_delimiter(@user_topics.count)
   | new topics this year.
+  = ranked(@user_topics)
 
 h3 Posts
 p
   ' You created a total of
   span.stat>
-    = number_with_delimiter(@user_new_posts.total_count)
-  ' new posts this year, of which
+    = number_with_delimiter(@user_posts.count)
+  ' new posts this year, across
   span.stat>
-    = number_with_delimiter(@user_new_posts.anonymous_count)
-  ' were anonymous, across
-  span.stat>
-    = number_with_delimiter(@user_new_posts.topic_count)
+    = number_with_delimiter(@user_posts.distinct_topic_count)
   | topics.
+  = ranked(@user_posts)
 
 h3 Tag Changes
 p
   ' You made a total of
   span.stat>
-    = number_with_delimiter(@user_new_tag_changes.count)
+    = number_with_delimiter(@user_tag_changes.count)
   ' tag changes this year, affecting
   span.stat>
-    = number_with_delimiter(@user_new_tag_changes.image_count)
+    = number_with_delimiter(@user_tag_changes.distinct_image_count)
   | images.
+  = ranked(@user_tag_changes)
 
 h3 Source Changes
 p
   ' You made a total of
   span.stat>
-    = number_with_delimiter(@user_new_source_changes.count)
+    = number_with_delimiter(@user_source_changes.count)
   ' source changes this year, affecting
   span.stat>
-    = number_with_delimiter(@user_new_source_changes.image_count)
+    = number_with_delimiter(@user_source_changes.distinct_image_count)
   | images.
+  = ranked(@user_source_changes)
 
 h3 Reports
 p
   ' You filed a total of
   span.stat>
-    = number_with_delimiter(@user_new_reports.count)
+    = number_with_delimiter(@user_reports.count)
   ' reports this year. It took us on average
   span.stat>
-    = Float.round(@user_new_reports.avg_time / 3600, 2)
+    = Float.round(@user_reports.avg_time / 3600, 2)
   | hours to resolve them.
+  = ranked(@user_reports)
 
-h3 Most Faved Characters
+h3 Top Faved Characters
 .block
   table.table
     thead
@@ -193,17 +226,16 @@ h3 Most Faved Characters
         th Faves
         th Rank among all users
     tbody
-      = for %{tag: tag, faves: faves, rank: rank} <- @user_most_faved_character_tags do
+      = for %{tag: tag, faves: faves, rank: rank, ntile: ntile} <- @user_top_faved_character_tags do
         tr
           td
             = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
           td
             = number_with_delimiter(faves)
           td
-            | #
-            = rank
+            = rank(rank, ntile)
 
-h3 Most Faved Artists
+h3 Top Faved Artists
 .block
   table.table
     thead
@@ -212,17 +244,16 @@ h3 Most Faved Artists
         th Faves
         th Rank among all users
     tbody
-      = for %{tag: tag, faves: faves, rank: rank} <- @user_most_faved_artist_tags do
+      = for %{tag: tag, faves: faves, rank: rank, ntile: ntile} <- @user_top_faved_artist_tags do
         tr
           td
             = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
           td
             = number_with_delimiter(faves)
           td
-            | #
-            = rank
+            = rank(rank, ntile)
 
-h3 Most Faved OCs
+h3 Top Faved OCs
 .block
   table.table
     thead
@@ -231,13 +262,11 @@ h3 Most Faved OCs
         th Faves
         th Rank among all users
     tbody
-      = for %{tag: tag, faves: faves, rank: rank} <- @user_most_faved_oc_tags do
+      = for %{tag: tag, faves: faves, rank: rank, ntile: ntile} <- @user_top_faved_oc_tags do
         tr
           td
             = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
           td
             = number_with_delimiter(faves)
           td
-            | #
-            = rank
-            
+            = rank(rank, ntile)
