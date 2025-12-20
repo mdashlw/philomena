@@ -326,7 +326,7 @@ SELECT
       WHERE
         NOT open
     ),
-    0
+    0::double precision
   ) AS avg_time,
   DENSE_RANK() OVER (
     ORDER BY
