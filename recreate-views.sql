@@ -90,7 +90,8 @@ CREATE MATERIALIZED VIEW
   derped_global_tag_changes AS
 SELECT
   COUNT(*),
-  COUNT(DISTINCT image_id) AS distinct_image_count
+  COUNT(DISTINCT image_id) AS distinct_image_count,
+  COUNT(DISTINCT user_id) AS distinct_user_count
 FROM
   tag_changes
 WHERE
@@ -102,7 +103,8 @@ CREATE MATERIALIZED VIEW
   derped_global_source_changes AS
 SELECT
   COUNT(*),
-  COUNT(DISTINCT image_id) AS distinct_image_count
+  COUNT(DISTINCT image_id) AS distinct_image_count,
+  COUNT(DISTINCT user_id) AS distinct_user_count
 FROM
   source_changes
 WHERE

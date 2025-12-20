@@ -86,13 +86,13 @@ defmodule PhilomenaWeb.Profile.DerpedController do
     global_tag_changes =
       Repo.one!(
         from s in "derped_global_tag_changes",
-          select: map(s, [:count, :distinct_image_count])
+          select: map(s, [:count, :distinct_image_count, :distinct_user_count])
       )
 
     global_source_changes =
       Repo.one!(
         from s in "derped_global_source_changes",
-          select: map(s, [:count, :distinct_image_count])
+          select: map(s, [:count, :distinct_image_count, :distinct_user_count])
       )
 
     global_reports =

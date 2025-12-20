@@ -100,7 +100,10 @@ p
   ' new tag changes were made this year, affecting
   span.stat>
     = number_with_delimiter(@global_tag_changes.distinct_image_count)
-  | images.
+  ' images, by
+  span.stat>
+    = number_with_delimiter(@global_tag_changes.distinct_user_count)
+  | users.
 
 h3 Source Changes
 p
@@ -110,7 +113,10 @@ p
   ' new source changes were made this year, affecting
   span.stat>
     = number_with_delimiter(@global_source_changes.distinct_image_count)
-  | images.
+  ' images, by
+  span.stat>
+    = number_with_delimiter(@global_source_changes.distinct_user_count)
+  | users.
 
 h3 Reports
 p
