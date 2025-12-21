@@ -131,31 +131,44 @@ p
 h2 Your Statistics
 
 h3 Time
-p
-  ' You visited Derpibooru a total of
-  span.stat>
-    = number_with_delimiter(@user_visits.overall)
-  ' times overall. This is approximately
-  span.stat>
-    = Float.round(@user_visits.overall / 60.0, 2)
-  | hours of browsing.
-= if @user_visits.total > 10 do
+= if @user_visits.total / @user_visits.overall >= 0.99 do
   p
-    ' This year alone, you visited at least
+    ' You visited Derpibooru a total of
     span.stat>
       = number_with_delimiter(@user_visits.total)
-    ' times, which is approximately
+    ' times. This is approximately
     span.stat>
       = Float.round(@user_visits.total / 60.0, 2)
-    | hours.
+    | hours of browsing.
     = ranked(@user_visits)
-  = if @user_visits.overall != @user_visits.total and @user_visits.total / @user_visits.overall >= 0.1 and @user_visits.total / @user_visits.overall <= 0.9 do
+  = if @user_visits.total >= 600 do
+    p You joined us this year and have been here ever since! Welcome to the ride :)  
+- else
+  p
+    ' You visited Derpibooru a total of
+    span.stat>
+      = number_with_delimiter(@user_visits.overall)
+    ' times overall. This is approximately
+    span.stat>
+      = Float.round(@user_visits.overall / 60.0, 2)
+    | hours of browsing.
+  = if @user_visits.total > 10 do
     p
-      ' Wow! That's
+      ' This year alone, you visited at least
       span.stat>
-        = Float.round(@user_visits.total / @user_visits.overall * 100, 2)
-        | %
-      | of all your time! The ride never ends :)
+        = number_with_delimiter(@user_visits.total)
+      ' times, which is approximately
+      span.stat>
+        = Float.round(@user_visits.total / 60.0, 2)
+      | hours.
+      = ranked(@user_visits)
+    = if @user_visits.total / @user_visits.overall >= 0.1 and @user_visits.total / @user_visits.overall <= 0.9 do
+      p
+        ' Wow! That's
+        span.stat>
+          = Float.round(@user_visits.total / @user_visits.overall * 100, 2)
+          | %
+        | of all your time! The ride never ends :)
 p We don't know how you spent your time or what you looked at, but we do know you were here!
 
 h3 Images

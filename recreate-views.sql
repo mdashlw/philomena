@@ -128,7 +128,6 @@ CREATE MATERIALIZED VIEW
   derped_user_visits AS
 SELECT
   user_id,
-  SUM(uses) AS total,
   DENSE_RANK() OVER (
     ORDER BY
       SUM(uses) DESC

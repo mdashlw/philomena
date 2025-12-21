@@ -106,17 +106,21 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       Repo.one(
         from s in "derped_user_visits",
           where: s.user_id == ^user.id,
-          select: map(s, [:total, :rank, :ntile])
-      ) || %{total: 0, rank: nil, ntile: nil}
+          select: map(s, [:rank, :ntile])
+      ) || %{rank: nil, ntile: nil}
 
     user_visits =
-      Map.put(
+      Map.merge(
         user_visits,
-        :overall,
         Repo.one(
           from ui in UserIp,
             where: ui.user_id == ^user.id,
-            select: sum(ui.uses)
+            select: %{
+              overall: sum(ui.uses),
+              total:
+                sum(ui.uses)
+                |> filter(ui.created_at >= ^@start_of_year and ui.created_at <= ^@end_of_year)
+            }
         )
       )
 
