@@ -122,6 +122,36 @@ FROM
 WHERE
   created_at >= '2025-01-01';
 
+DROP MATERIALIZED VIEW IF EXISTS derped_user_visits;
+
+CREATE MATERIALIZED VIEW
+  derped_user_visits AS
+SELECT
+  user_id,
+  (
+    SELECT
+      SUM(uses)
+    FROM
+      user_ips
+    WHERE
+      user_ips.user_id = ui.user_id
+  ) AS overall,
+  SUM(uses) AS total,
+  DENSE_RANK() OVER (
+    ORDER BY
+      SUM(uses) DESC
+  ) AS rank,
+  NTILE(100) OVER (
+    ORDER BY
+      SUM(uses) DESC
+  )
+FROM
+  user_ips AS ui
+WHERE
+  created_at >= '2025-01-01'
+GROUP BY
+  user_id;
+
 DROP MATERIALIZED VIEW IF EXISTS derped_user_images;
 
 CREATE MATERIALIZED VIEW

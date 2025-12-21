@@ -14,6 +14,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
   alias Philomena.Images.Tagging
   alias Philomena.Tags.Tag
   alias Philomena.Repo
+  alias Philomena.UserIps.UserIp
   import Ecto.Query
 
   plug :load_resource,
@@ -100,6 +101,13 @@ defmodule PhilomenaWeb.Profile.DerpedController do
         from s in "derped_global_reports",
           select: map(s, [:count, :distinct_user_count])
       )
+
+    user_visits =
+      Repo.one(
+        from s in "derped_user_visits",
+          where: s.user_id == ^user.id,
+          select: map(s, [:overall, :total, :rank, :ntile])
+      ) || %{overall: 0, total: 0, rank: nil, ntile: nil}
 
     user_images =
       Repo.one(
@@ -221,6 +229,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       global_tag_changes: global_tag_changes,
       global_source_changes: global_source_changes,
       global_reports: global_reports,
+      user_visits: user_visits,
       user_images: user_images,
       user_comments: user_comments,
       user_topics: user_topics,
