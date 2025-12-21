@@ -106,8 +106,19 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       Repo.one(
         from s in "derped_user_visits",
           where: s.user_id == ^user.id,
-          select: map(s, [:overall, :total, :rank, :ntile])
-      ) || %{overall: 0, total: 0, rank: nil, ntile: nil}
+          select: map(s, [:total, :rank, :ntile])
+      ) || %{total: 0, rank: nil, ntile: nil}
+
+    user_visits =
+      Map.put(
+        user_visits,
+        :overall,
+        Repo.one(
+          from ui in UserIp,
+            where: ui.user_id == ^user.id,
+            select: sum(ui.uses)
+        )
+      )
 
     user_images =
       Repo.one(

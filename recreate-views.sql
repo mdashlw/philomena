@@ -128,14 +128,6 @@ CREATE MATERIALIZED VIEW
   derped_user_visits AS
 SELECT
   user_id,
-  (
-    SELECT
-      SUM(uses)
-    FROM
-      user_ips
-    WHERE
-      user_ips.user_id = ui.user_id
-  ) AS overall,
   SUM(uses) AS total,
   DENSE_RANK() OVER (
     ORDER BY

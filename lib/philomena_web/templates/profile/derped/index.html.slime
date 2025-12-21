@@ -149,7 +149,7 @@ p
       = Float.round(@user_visits.total / 60.0, 2)
     | hours.
     = ranked(@user_visits)
-  = if @user_visits.overall != @user_visits.total and @user_visits.total / @user_visits.overall >= 0.1 do
+  = if @user_visits.overall != @user_visits.total and @user_visits.total / @user_visits.overall >= 0.1 and @user_visits.total / @user_visits.overall <= 0.9 do
     p
       ' Wow! That's
       span.stat>
