@@ -292,8 +292,6 @@ defmodule PhilomenaWeb.Router do
       resources "/ip_history", Profile.IpHistoryController, only: [:index]
       resources "/fp_history", Profile.FpHistoryController, only: [:index]
       resources "/aliases", Profile.AliasController, only: [:index]
-
-      resources "/derped", Profile.DerpedController, only: [:index]
     end
 
     scope "/filters", Filter, as: :filter do
@@ -531,6 +529,8 @@ defmodule PhilomenaWeb.Router do
       resources "/commission", Profile.CommissionController, only: [:show], singleton: true
       resources "/tag_changes", Profile.TagChangeController, only: [:index]
       resources "/source_changes", Profile.SourceChangeController, only: [:index]
+
+      resources "/derped", Profile.DerpedController, only: [:index]
     end
 
     scope "/posts", Post, as: :post do
