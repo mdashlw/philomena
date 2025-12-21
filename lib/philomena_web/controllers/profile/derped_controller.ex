@@ -268,7 +268,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       match?(%{role: role} when role in ~w(moderator admin), current) ->
         conn
 
-      conn.params["token"] and conn.params["token"] == share_token(user) ->
+      not is_nil(conn.params["token"]) and conn.params["token"] == share_token(user) ->
         conn
 
       true ->
