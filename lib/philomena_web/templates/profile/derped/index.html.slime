@@ -21,7 +21,7 @@ p
     = number_with_delimiter(@global_images.count)
   ' new images were uploaded this year, by
   span.stat>
-    = number_with_delimiter(@global_images.distinct_user_count)
+    = number_with_delimiter(@global_images.user_count)
   | users.
 
 h3 Comments
@@ -29,13 +29,19 @@ p
   ' A total of
   span.stat>
     = number_with_delimiter(@global_comments.count)
-  ' new comments were posted this year, across
+  ' new comments were posted this year, by
   span.stat>
-    = number_with_delimiter(@global_comments.distinct_image_count)
-  ' images, by
+    = number_with_delimiter(@global_comments.user_count)
+  ' users, across
   span.stat>
-    = number_with_delimiter(@global_comments.distinct_user_count)
-  | users.
+    = number_with_delimiter(@global_comments.image_count)
+  ' images, of which
+  span.stat>
+    = Float.round(safe_div(@global_comments.new_image_count, @global_comments.image_count) * 100, 1)
+    | % (
+    = number_with_delimiter(@global_comments.new_image_count)
+    | )
+  | were new this year.
 
 h3 Topics
 p
@@ -44,7 +50,7 @@ p
     = number_with_delimiter(@global_topics.count)
   ' new topics were created this year, by
   span.stat>
-    = number_with_delimiter(@global_topics.distinct_user_count)
+    = number_with_delimiter(@global_topics.user_count)
   | users.
 
 h3 Posts
@@ -52,26 +58,38 @@ p
   ' A total of
   span.stat>
     = number_with_delimiter(@global_posts.count)
-  ' new posts were created this year, across
+  ' new posts were created this year, by
   span.stat>
-    = number_with_delimiter(@global_posts.distinct_topic_count)
-  ' topics, by
+    = number_with_delimiter(@global_posts.user_count)
+  ' users, across
   span.stat>
-    = number_with_delimiter(@global_posts.distinct_user_count)
-  | users.
+    = number_with_delimiter(@global_posts.topic_count)
+  ' topics, of which
+  span.stat>
+    = Float.round(safe_div(@global_posts.new_topic_count, @global_posts.topic_count) * 100, 1)
+    | % (
+    = number_with_delimiter(@global_posts.new_topic_count)
+    | )
+  | were new this year.
 
 h3 Image Faves
 p
   ' A total of
   span.stat>
     = number_with_delimiter(@global_faves.count)
-  ' new image faves were added this year, across
+  ' new image faves were added this year, by
   span.stat>
-    = number_with_delimiter(@global_faves.distinct_image_count)
-  ' images, by
+    = number_with_delimiter(@global_faves.user_count)
+  ' users, across
   span.stat>
-    = number_with_delimiter(@global_faves.distinct_user_count)
-  | users.
+    = number_with_delimiter(@global_faves.image_count)
+  ' images, of which
+  span.stat>
+    = Float.round(safe_div(@global_faves.new_image_count, @global_faves.image_count) * 100, 1)
+    | % (
+    = number_with_delimiter(@global_faves.new_image_count)
+    | )
+  | were new this year.
 
 h3 Image Votes
 p
@@ -80,43 +98,78 @@ p
     = number_with_delimiter(@global_votes.total_count)
   ' new image votes were cast this year, of which
   span.stat>
-    = number_with_delimiter(@global_votes.up_count)
-  ' were upvotes and
+    = Float.round(safe_div(@global_votes.up_count, @global_votes.total_count) * 100, 1)
+    | %
+  ' were upvotes, by
   span.stat>
-    = number_with_delimiter(@global_votes.down_count)
-  ' were downvotes, across
+    = number_with_delimiter(@global_votes.user_count)
+  ' users, across
   span.stat>
-    = number_with_delimiter(@global_votes.distinct_image_count)
-  ' images, by
+    = number_with_delimiter(@global_votes.image_count)
+  ' images, of which
   span.stat>
-    = number_with_delimiter(@global_votes.distinct_user_count)
-  | users.
+    = Float.round(safe_div(@global_votes.new_image_count, @global_votes.image_count) * 100, 1)
+    | % (
+    = number_with_delimiter(@global_votes.new_image_count)
+    | )
+  | were new this year.
+
+h3 Tags
+p
+  ' A total of
+  span.stat>
+    = number_with_delimiter(@global_taggings.count)
+  ' new tags were added this year, by
+  span.stat>
+    = number_with_delimiter(@global_taggings.user_count)
+  ' users, affecting
+  span.stat>
+    = number_with_delimiter(@global_taggings.image_count)
+  ' images, of which
+  span.stat>
+    = Float.round(safe_div(@global_taggings.new_image_count, @global_taggings.image_count) * 100, 1)
+    | % (
+    = number_with_delimiter(@global_taggings.new_image_count)
+    | )
+  | were new this year.
 
 h3 Tag Changes
 p
   ' A total of
   span.stat>
     = number_with_delimiter(@global_tag_changes.count)
-  ' new tag changes were made this year, affecting
+  ' new tag changes were made this year, by
   span.stat>
-    = number_with_delimiter(@global_tag_changes.distinct_image_count)
-  ' images, by
+    = number_with_delimiter(@global_tag_changes.user_count)
+  ' users, affecting
   span.stat>
-    = number_with_delimiter(@global_tag_changes.distinct_user_count)
-  | users.
+    = number_with_delimiter(@global_tag_changes.image_count)
+  ' images, of which
+  span.stat>
+    = Float.round(safe_div(@global_tag_changes.new_image_count, @global_tag_changes.image_count) * 100, 1)
+    | % (
+    = number_with_delimiter(@global_tag_changes.new_image_count)
+    | )
+  | were new this year.
 
 h3 Source Changes
 p
   ' A total of
   span.stat>
     = number_with_delimiter(@global_source_changes.count)
-  ' new source changes were made this year, affecting
+  ' new source changes were made this year, by
   span.stat>
-    = number_with_delimiter(@global_source_changes.distinct_image_count)
-  ' images, by
+    = number_with_delimiter(@global_source_changes.user_count)
+  ' users, affecting
   span.stat>
-    = number_with_delimiter(@global_source_changes.distinct_user_count)
-  | users.
+    = number_with_delimiter(@global_source_changes.image_count)
+  ' images, of which
+  span.stat>
+    = Float.round(safe_div(@global_source_changes.new_image_count, @global_source_changes.image_count) * 100, 1)
+    | % (
+    = number_with_delimiter(@global_source_changes.new_image_count)
+    | )
+  | were new this year.
 
 h3 Reports
 p
@@ -125,7 +178,7 @@ p
     = number_with_delimiter(@global_reports.count)
   ' new reports were filed this year, by
   span.stat>
-    = number_with_delimiter(@global_reports.distinct_user_count)
+    = number_with_delimiter(@global_reports.user_count)
   | users.
 
 h2 Your Statistics
@@ -186,7 +239,7 @@ p
     = number_with_delimiter(@user_comments.count)
   ' new comments this year, across
   span.stat>
-    = number_with_delimiter(@user_comments.distinct_image_count)
+    = number_with_delimiter(@user_comments.image_count)
   ' images.
   = ranked(@user_comments)
 
@@ -205,11 +258,9 @@ p
     = number_with_delimiter(@user_votes.total_count)
   ' image votes this year, of which
   span.stat>
-    = number_with_delimiter(@user_votes.up_count)
-  ' were upvotes and
-  span.stat>
-    = number_with_delimiter(@user_votes.down_count)
-  | were downvotes.
+    = Float.round(@user_votes.up_count / @user_votes.total_count * 100, 1)
+    | %
+  ' were upvotes.
   = ranked(@user_votes)
 
 h3 Topics
@@ -227,7 +278,7 @@ p
     = number_with_delimiter(@user_posts.count)
   ' new posts this year, across
   span.stat>
-    = number_with_delimiter(@user_posts.distinct_topic_count)
+    = number_with_delimiter(@user_posts.topic_count)
   | topics.
   = ranked(@user_posts)
 
@@ -238,7 +289,7 @@ p
     = number_with_delimiter(@user_tag_changes.count)
   ' tag changes this year, affecting
   span.stat>
-    = number_with_delimiter(@user_tag_changes.distinct_image_count)
+    = number_with_delimiter(@user_tag_changes.image_count)
   | images.
   = ranked(@user_tag_changes)
 
@@ -249,7 +300,7 @@ p
     = number_with_delimiter(@user_source_changes.count)
   ' source changes this year, affecting
   span.stat>
-    = number_with_delimiter(@user_source_changes.distinct_image_count)
+    = number_with_delimiter(@user_source_changes.image_count)
   | images.
   = ranked(@user_source_changes)
 

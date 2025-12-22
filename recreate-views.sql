@@ -6,7 +6,7 @@ CREATE MATERIALIZED VIEW
   derped_global_images AS
 SELECT
   COUNT(*),
-  COUNT(DISTINCT user_id) AS distinct_user_count
+  COUNT(DISTINCT user_id) AS user_count
 FROM
   images
 WHERE
@@ -18,12 +18,17 @@ CREATE MATERIALIZED VIEW
   derped_global_comments AS
 SELECT
   COUNT(*),
-  COUNT(DISTINCT image_id) AS distinct_image_count,
-  COUNT(DISTINCT user_id) AS distinct_user_count
+  COUNT(DISTINCT comments.user_id) AS user_count,
+  COUNT(DISTINCT images.id) AS image_count,
+  COUNT(DISTINCT images.id) FILTER (
+    WHERE
+      images.created_at >= '2025-01-01'
+  ) AS new_image_count
 FROM
   comments
+  INNER JOIN images ON images.id = comments.image_id
 WHERE
-  created_at >= '2025-01-01';
+  comments.created_at >= '2025-01-01';
 
 DROP MATERIALIZED VIEW IF EXISTS derped_global_topics;
 
@@ -31,7 +36,7 @@ CREATE MATERIALIZED VIEW
   derped_global_topics AS
 SELECT
   COUNT(*),
-  COUNT(DISTINCT user_id) AS distinct_user_count
+  COUNT(DISTINCT user_id) AS user_count
 FROM
   topics
 WHERE
@@ -43,12 +48,17 @@ CREATE MATERIALIZED VIEW
   derped_global_posts AS
 SELECT
   COUNT(*),
-  COUNT(DISTINCT topic_id) AS distinct_topic_count,
-  COUNT(DISTINCT user_id) AS distinct_user_count
+  COUNT(DISTINCT posts.user_id) AS user_count,
+  COUNT(DISTINCT topics.id) AS topic_count,
+  COUNT(DISTINCT topics.id) FILTER (
+    WHERE
+      topics.created_at >= '2025-01-01'
+  ) AS new_topic_count
 FROM
   posts
+  INNER JOIN topics ON topics.id = posts.topic_id
 WHERE
-  created_at >= '2025-01-01';
+  posts.created_at >= '2025-01-01';
 
 DROP MATERIALIZED VIEW IF EXISTS derped_global_faves;
 
@@ -56,12 +66,17 @@ CREATE MATERIALIZED VIEW
   derped_global_faves AS
 SELECT
   COUNT(*),
-  COUNT(DISTINCT image_id) AS distinct_image_count,
-  COUNT(DISTINCT user_id) AS distinct_user_count
+  COUNT(DISTINCT image_faves.user_id) AS user_count,
+  COUNT(DISTINCT images.id) AS image_count,
+  COUNT(DISTINCT images.id) FILTER (
+    WHERE
+      images.created_at >= '2025-01-01'
+  ) AS new_image_count
 FROM
   image_faves
+  INNER JOIN images ON images.id = image_faves.image_id
 WHERE
-  created_at >= '2025-01-01';
+  image_faves.created_at >= '2025-01-01';
 
 DROP MATERIALIZED VIEW IF EXISTS derped_global_votes;
 
@@ -77,10 +92,33 @@ SELECT
     WHERE
       NOT up
   ) AS down_count,
-  COUNT(DISTINCT image_id) AS distinct_image_count,
-  COUNT(DISTINCT user_id) AS distinct_user_count
+  COUNT(DISTINCT image_votes.user_id) AS user_count,
+  COUNT(DISTINCT images.id) AS image_count,
+  COUNT(DISTINCT images.id) FILTER (
+    WHERE
+      images.created_at >= '2025-01-01'
+  ) AS new_image_count
 FROM
   image_votes
+  INNER JOIN images ON images.id = image_votes.image_id
+WHERE
+  image_votes.created_at >= '2025-01-01';
+
+DROP MATERIALIZED VIEW IF EXISTS derped_global_taggings;
+
+CREATE MATERIALIZED VIEW
+  derped_global_taggings AS
+SELECT
+  COUNT(*),
+  COUNT(DISTINCT user_id) AS user_count,
+  COUNT(DISTINCT images.id) AS image_count,
+  COUNT(DISTINCT images.id) FILTER (
+    WHERE
+      images.created_at >= '2025-01-01'
+  ) AS new_image_count
+FROM
+  image_taggings
+  INNER JOIN images ON images.id = image_taggings.image_id
 WHERE
   created_at >= '2025-01-01';
 
@@ -89,13 +127,18 @@ DROP MATERIALIZED VIEW IF EXISTS derped_global_tag_changes;
 CREATE MATERIALIZED VIEW
   derped_global_tag_changes AS
 SELECT
-  COUNT(*),
-  COUNT(DISTINCT image_id) AS distinct_image_count,
-  COUNT(DISTINCT user_id) AS distinct_user_count
+  COUNT(tag_changes.id),
+  COUNT(DISTINCT tag_changes.user_id) AS user_count,
+  COUNT(DISTINCT images.id) AS image_count,
+  COUNT(DISTINCT images.id) FILTER (
+    WHERE
+      images.created_at >= '2025-01-01'
+  ) AS new_image_count,
 FROM
   tag_changes
+  INNER JOIN images ON images.id = tag_changes.image_id
 WHERE
-  created_at >= '2025-01-01';
+  tag_changes.created_at >= '2025-01-01';
 
 DROP MATERIALIZED VIEW IF EXISTS derped_global_source_changes;
 
@@ -103,12 +146,17 @@ CREATE MATERIALIZED VIEW
   derped_global_source_changes AS
 SELECT
   COUNT(*),
-  COUNT(DISTINCT image_id) AS distinct_image_count,
-  COUNT(DISTINCT user_id) AS distinct_user_count
+  COUNT(DISTINCT source_changes.user_id) AS user_count,
+  COUNT(DISTINCT images.id) AS image_count,
+  COUNT(DISTINCT images.id) FILTER (
+    WHERE
+      images.created_at >= '2025-01-01'
+  ) AS new_image_count
 FROM
   source_changes
+  INNER JOIN images ON images.id = source_changes.image_id
 WHERE
-  created_at >= '2025-01-01';
+  source_changes.created_at >= '2025-01-01';
 
 DROP MATERIALIZED VIEW IF EXISTS derped_global_reports;
 
@@ -116,7 +164,7 @@ CREATE MATERIALIZED VIEW
   derped_global_reports AS
 SELECT
   COUNT(*),
-  COUNT(DISTINCT user_id) AS distinct_user_count
+  COUNT(DISTINCT user_id) AS user_count
 FROM
   reports
 WHERE
@@ -172,7 +220,7 @@ CREATE MATERIALIZED VIEW
 SELECT
   user_id,
   COUNT(*),
-  COUNT(DISTINCT image_id) AS distinct_image_count,
+  COUNT(DISTINCT image_id) AS image_count,
   DENSE_RANK() OVER (
     ORDER BY
       COUNT(*) DESC
@@ -217,7 +265,7 @@ CREATE MATERIALIZED VIEW
 SELECT
   user_id,
   COUNT(*),
-  COUNT(DISTINCT topic_id) AS distinct_topic_count,
+  COUNT(DISTINCT topic_id) AS topic_count,
   DENSE_RANK() OVER (
     ORDER BY
       COUNT(*) DESC
@@ -292,7 +340,7 @@ CREATE MATERIALIZED VIEW
 SELECT
   user_id,
   COUNT(*),
-  COUNT(DISTINCT image_id) AS distinct_image_count,
+  COUNT(DISTINCT image_id) AS image_count,
   DENSE_RANK() OVER (
     ORDER BY
       COUNT(*) DESC
@@ -315,7 +363,7 @@ CREATE MATERIALIZED VIEW
 SELECT
   user_id,
   COUNT(*),
-  COUNT(DISTINCT image_id) AS distinct_image_count,
+  COUNT(DISTINCT image_id) AS image_count,
   DENSE_RANK() OVER (
     ORDER BY
       COUNT(*) DESC

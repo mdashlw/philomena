@@ -44,31 +44,31 @@ defmodule PhilomenaWeb.Profile.DerpedController do
     global_images =
       Repo.one!(
         from s in "derped_global_images",
-          select: map(s, [:count, :distinct_user_count])
+          select: map(s, [:count, :user_count])
       )
 
     global_comments =
       Repo.one!(
         from s in "derped_global_comments",
-          select: map(s, [:count, :distinct_image_count, :distinct_user_count])
+          select: map(s, [:count, :user_count, :image_count, :new_image_count])
       )
 
     global_topics =
       Repo.one!(
         from s in "derped_global_topics",
-          select: map(s, [:count, :distinct_user_count])
-      ) || %{count: 0, distinct_user_count: 0}
+          select: map(s, [:count, :user_count])
+      ) || %{count: 0, user_count: 0}
 
     global_posts =
       Repo.one!(
         from s in "derped_global_posts",
-          select: map(s, [:count, :distinct_topic_count, :distinct_user_count])
+          select: map(s, [:count, :user_count, :topic_count, :new_topic_count])
       )
 
     global_faves =
       Repo.one!(
         from s in "derped_global_faves",
-          select: map(s, [:count, :distinct_image_count, :distinct_user_count])
+          select: map(s, [:count, :user_count, :image_count, :new_image_count])
       )
 
     global_votes =
@@ -79,27 +79,34 @@ defmodule PhilomenaWeb.Profile.DerpedController do
               :total_count,
               :up_count,
               :down_count,
-              :distinct_image_count,
-              :distinct_user_count
+              :user_count,
+              :image_count,
+              :new_image_count
             ])
+      )
+
+    global_taggings =
+      Repo.one!(
+        from s in "derped_global_taggings",
+          select: map(s, [:count, :user_count, :image_count, :new_image_count])
       )
 
     global_tag_changes =
       Repo.one!(
         from s in "derped_global_tag_changes",
-          select: map(s, [:count, :distinct_image_count, :distinct_user_count])
+          select: map(s, [:count, :user_count, :image_count, :new_image_count])
       )
 
     global_source_changes =
       Repo.one!(
         from s in "derped_global_source_changes",
-          select: map(s, [:count, :distinct_image_count, :distinct_user_count])
+          select: map(s, [:count, :user_count, :image_count, :new_image_count])
       )
 
     global_reports =
       Repo.one!(
         from s in "derped_global_reports",
-          select: map(s, [:count, :distinct_user_count])
+          select: map(s, [:count, :user_count])
       )
 
     user_visits =
@@ -135,8 +142,8 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       Repo.one(
         from s in "derped_user_comments",
           where: s.user_id == ^user.id,
-          select: map(s, [:count, :distinct_image_count, :rank, :ntile])
-      ) || %{count: 0, distinct_image_count: 0, rank: nil, ntile: nil}
+          select: map(s, [:count, :image_count, :rank, :ntile])
+      ) || %{count: 0, image_count: 0, rank: nil, ntile: nil}
 
     user_topics =
       Repo.one(
@@ -149,8 +156,8 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       Repo.one(
         from s in "derped_user_posts",
           where: s.user_id == ^user.id,
-          select: map(s, [:count, :distinct_topic_count, :rank, :ntile])
-      ) || %{count: 0, distinct_topic_count: 0, rank: nil, ntile: nil}
+          select: map(s, [:count, :topic_count, :rank, :ntile])
+      ) || %{count: 0, topic_count: 0, rank: nil, ntile: nil}
 
     user_faves =
       Repo.one(
@@ -170,15 +177,15 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       Repo.one(
         from s in "derped_user_tag_changes",
           where: s.user_id == ^user.id,
-          select: map(s, [:count, :distinct_image_count, :rank, :ntile])
-      ) || %{count: 0, distinct_image_count: 0, rank: nil, ntile: nil}
+          select: map(s, [:count, :image_count, :rank, :ntile])
+      ) || %{count: 0, image_count: 0, rank: nil, ntile: nil}
 
     user_source_changes =
       Repo.one(
         from s in "derped_user_source_changes",
           where: s.user_id == ^user.id,
-          select: map(s, [:count, :distinct_image_count, :rank, :ntile])
-      ) || %{count: 0, distinct_image_count: 0, rank: nil, ntile: nil}
+          select: map(s, [:count, :image_count, :rank, :ntile])
+      ) || %{count: 0, image_count: 0, rank: nil, ntile: nil}
 
     user_reports =
       Repo.one(
@@ -241,6 +248,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       global_posts: global_posts,
       global_faves: global_faves,
       global_votes: global_votes,
+      global_taggings: global_taggings,
       global_tag_changes: global_tag_changes,
       global_source_changes: global_source_changes,
       global_reports: global_reports,
