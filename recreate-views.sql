@@ -104,24 +104,6 @@ FROM
 WHERE
   image_votes.created_at >= '2025-01-01';
 
-DROP MATERIALIZED VIEW IF EXISTS derped_global_taggings;
-
-CREATE MATERIALIZED VIEW
-  derped_global_taggings AS
-SELECT
-  COUNT(*),
-  COUNT(DISTINCT user_id) AS user_count,
-  COUNT(DISTINCT images.id) AS image_count,
-  COUNT(DISTINCT images.id) FILTER (
-    WHERE
-      images.created_at >= '2025-01-01'
-  ) AS new_image_count
-FROM
-  image_taggings
-  INNER JOIN images ON images.id = image_taggings.image_id
-WHERE
-  image_taggings.created_at >= '2025-01-01';
-
 DROP MATERIALIZED VIEW IF EXISTS derped_global_tag_changes;
 
 CREATE MATERIALIZED VIEW
@@ -262,6 +244,7 @@ FROM
   images
 WHERE
   created_at >= '2025-01-01'
+  AND user_id IS NOT NULL
 GROUP BY
   user_id;
 
@@ -285,6 +268,7 @@ FROM
   comments
 WHERE
   created_at >= '2025-01-01'
+  AND user_id IS NOT NULL
 GROUP BY
   user_id;
 
@@ -307,6 +291,7 @@ FROM
   topics
 WHERE
   created_at >= '2025-01-01'
+  AND user_id IS NOT NULL
 GROUP BY
   user_id;
 
@@ -330,6 +315,7 @@ FROM
   posts
 WHERE
   created_at >= '2025-01-01'
+  AND user_id IS NOT NULL
 GROUP BY
   user_id;
 
@@ -405,6 +391,7 @@ FROM
   tag_changes
 WHERE
   created_at >= '2025-01-01'
+  AND user_id IS NOT NULL
 GROUP BY
   user_id;
 
@@ -428,6 +415,7 @@ FROM
   source_changes
 WHERE
   created_at >= '2025-01-01'
+  AND user_id IS NOT NULL
 GROUP BY
   user_id;
 
@@ -464,6 +452,7 @@ FROM
   reports
 WHERE
   created_at >= '2025-01-01'
+  AND user_id IS NOT NULL
 GROUP BY
   user_id;
 

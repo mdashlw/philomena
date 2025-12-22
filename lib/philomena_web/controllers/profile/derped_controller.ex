@@ -85,12 +85,6 @@ defmodule PhilomenaWeb.Profile.DerpedController do
             ])
       )
 
-    global_taggings =
-      Repo.one!(
-        from s in "derped_global_taggings",
-          select: map(s, [:count, :user_count, :image_count, :new_image_count])
-      )
-
     global_tag_changes =
       Repo.one!(
         from s in "derped_global_tag_changes",
@@ -120,7 +114,8 @@ defmodule PhilomenaWeb.Profile.DerpedController do
         from s in "derped_user_images",
           join: u in User,
           on: u.id == s.user_id,
-          select: %{user: map(u, [:slug, :name]), count: s.count},
+          select: %{user: map(u, [:slug, :name])},
+          select_merge: map(s, [:count]),
           order_by: [desc: s.count],
           limit: 10,
           with_ties: true
@@ -131,7 +126,8 @@ defmodule PhilomenaWeb.Profile.DerpedController do
         from s in "derped_user_comments",
           join: u in User,
           on: u.id == s.user_id,
-          select: %{user: map(u, [:slug, :name]), count: s.count, image_count: s.image_count},
+          select: %{user: map(u, [:slug, :name])},
+          select_merge: map(s, [:count, :image_count]),
           order_by: [desc: s.count],
           limit: 10,
           with_ties: true
@@ -142,7 +138,8 @@ defmodule PhilomenaWeb.Profile.DerpedController do
         from s in "derped_user_posts",
           join: u in User,
           on: u.id == s.user_id,
-          select: %{user: map(u, [:slug, :name]), count: s.count, topic_count: s.topic_count},
+          select: %{user: map(u, [:slug, :name])},
+          select_merge: map(s, [:count, :topic_count]),
           order_by: [desc: s.count],
           limit: 10,
           with_ties: true
@@ -311,7 +308,6 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       global_posts: global_posts,
       global_faves: global_faves,
       global_votes: global_votes,
-      global_taggings: global_taggings,
       global_tag_changes: global_tag_changes,
       global_tag_change_tags: global_tag_change_tags,
       global_source_changes: global_source_changes,

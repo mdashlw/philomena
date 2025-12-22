@@ -114,25 +114,6 @@ p
     | )
   | were new this year.
 
-h3 Tags
-p
-  ' A total of
-  span.stat>
-    = number_with_delimiter(@global_taggings.count)
-  ' new tags were added this year, by
-  span.stat>
-    = number_with_delimiter(@global_taggings.user_count)
-  ' users, affecting
-  span.stat>
-    = number_with_delimiter(@global_taggings.image_count)
-  ' images, of which
-  span.stat>
-    = Float.round(safe_div(@global_taggings.new_image_count, @global_taggings.image_count) * 100, 1)
-    | % (
-    = number_with_delimiter(@global_taggings.new_image_count)
-    | )
-  | were new this year.
-
 h3 Tag Changes
 p
   ' A total of
