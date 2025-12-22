@@ -202,41 +202,89 @@ p
     = number_with_delimiter(@global_reports.user_count)
   | users.
 
-h3 Top Added Tags
-.block
-  table.table
-    thead
+h2 Global Leaderboards
+
+h3 Top Uploaders
+table.table
+  thead
+    tr
+      th User
+      th Uploads
+  tbody
+    = for %{user: user, count: count} <- @global_top_uploaders do
       tr
-        th Tag
-        th Count
-        th Users
-    tbody
-      = for %{tag: tag, count: count, user_count: user_count} <- @global_top_added_tags do
-        tr
-          td
-            = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
-          td
-            = number_with_delimiter(count)
-          td
-            = number_with_delimiter(user_count)
+        td
+          = link user.name, to: ~p"/profiles/#{user.slug}"
+        td
+          = number_with_delimiter(count)
+
+h3 Top Commenters
+table.table
+  thead
+    tr
+      th User
+      th Comments
+      th Across images
+  tbody
+    = for %{user: user, count: count, image_count: image_count} <- @global_top_commenters do
+      tr
+        td
+          = link user.name, to: ~p"/profiles/#{user.slug}"
+        td
+          = number_with_delimiter(count)
+        td
+          = number_with_delimiter(image_count)
+
+h3 Top Posters
+table.table
+  thead
+    tr
+      th User
+      th Posts
+      th Across topics
+  tbody
+    = for %{user: user, count: count, topic_count: topic_count} <- @global_top_posters do
+      tr
+        td
+          = link user.name, to: ~p"/profiles/#{user.slug}"
+        td
+          = number_with_delimiter(count)
+        td
+          = number_with_delimiter(topic_count)
+
+h3 Top Added Tags
+table.table
+  thead
+    tr
+      th Tag
+      th Times added
+      th By users
+  tbody
+    = for %{tag: tag, count: count, user_count: user_count} <- @global_top_added_tags do
+      tr
+        td
+          = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
+        td
+          = number_with_delimiter(count)
+        td
+          = number_with_delimiter(user_count)
 
 h3 Top Removed Tags
-.block
-  table.table
-    thead
+table.table
+  thead
+    tr
+      th Tag
+      th Times removed
+      th By users
+  tbody
+    = for %{tag: tag, count: count, user_count: user_count} <- @global_top_removed_tags do
       tr
-        th Tag
-        th Count
-        th Users
-    tbody
-      = for %{tag: tag, count: count, user_count: user_count} <- @global_top_removed_tags do
-        tr
-          td
-            = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
-          td
-            = number_with_delimiter(count)
-          td
-            = number_with_delimiter(user_count)
+        td
+          = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
+        td
+          = number_with_delimiter(count)
+        td
+          = number_with_delimiter(user_count)
 
 h2 Your Statistics
 
@@ -373,55 +421,54 @@ p
   = ranked(@user_reports)
 
 h3 Top Faved Characters
-.block
-  table.table
-    thead
+table.table
+  thead
+    tr
+      th Tag
+      th Faves
+      th Rank among all users
+  tbody
+    = for %{tag: tag, faves: faves, rank: rank, ntile: ntile} <- @user_top_faved_character_tags do
       tr
-        th Tag
-        th Faves
-        th Rank among all users
-    tbody
-      = for %{tag: tag, faves: faves, rank: rank, ntile: ntile} <- @user_top_faved_character_tags do
-        tr
-          td
-            = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
-          td
-            = number_with_delimiter(faves)
-          td
-            = rank(rank, ntile)
+        td
+          = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
+        td
+          = number_with_delimiter(faves)
+        td
+          = rank(rank, ntile)
+
+h2 Personal Leaderboards
 
 h3 Top Faved Artists
-.block
-  table.table
-    thead
+table.table
+  thead
+    tr
+      th Tag
+      th Faves
+      th Rank among all users
+  tbody
+    = for %{tag: tag, faves: faves, rank: rank, ntile: ntile} <- @user_top_faved_artist_tags do
       tr
-        th Tag
-        th Faves
-        th Rank among all users
-    tbody
-      = for %{tag: tag, faves: faves, rank: rank, ntile: ntile} <- @user_top_faved_artist_tags do
-        tr
-          td
-            = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
-          td
-            = number_with_delimiter(faves)
-          td
-            = rank(rank, ntile)
+        td
+          = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
+        td
+          = number_with_delimiter(faves)
+        td
+          = rank(rank, ntile)
 
 h3 Top Faved OCs
-.block
-  table.table
-    thead
+table.table
+  thead
+    tr
+      th Tag
+      th Faves
+      th Rank among all users
+  tbody
+    = for %{tag: tag, faves: faves, rank: rank, ntile: ntile} <- @user_top_faved_oc_tags do
       tr
-        th Tag
-        th Faves
-        th Rank among all users
-    tbody
-      = for %{tag: tag, faves: faves, rank: rank, ntile: ntile} <- @user_top_faved_oc_tags do
-        tr
-          td
-            = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
-          td
-            = number_with_delimiter(faves)
-          td
-            = rank(rank, ntile)
+        td
+          = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
+        td
+          = number_with_delimiter(faves)
+        td
+          = rank(rank, ntile)

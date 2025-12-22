@@ -115,12 +115,46 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           select: map(s, [:count, :user_count])
       )
 
+    global_top_uploaders =
+      Repo.all(
+        from s in "derped_user_images",
+          join: u in User,
+          on: u.id == s.user_id,
+          select: %{user: map(u, [:slug, :name]), count: s.count},
+          order_by: [desc: s.count],
+          limit: 10,
+          with_ties: true
+      )
+
+    global_top_commenters =
+      Repo.all(
+        from s in "derped_user_comments",
+          join: u in User,
+          on: u.id == s.user_id,
+          select: %{user: map(u, [:slug, :name]), count: s.count, image_count: s.image_count},
+          order_by: [desc: s.count],
+          limit: 10,
+          with_ties: true
+      )
+
+    global_top_posters =
+      Repo.all(
+        from s in "derped_user_posts",
+          join: u in User,
+          on: u.id == s.user_id,
+          select: %{user: map(u, [:slug, :name]), count: s.count, topic_count: s.topic_count},
+          order_by: [desc: s.count],
+          limit: 10,
+          with_ties: true
+      )
+
     global_top_added_tags =
       Repo.all(
         from s in "derped_global_top_tag_change_tags",
           join: t in Tag,
           on: t.id == s.tag_id,
           select: %{tag: t, count: s.added_count, user_count: s.added_user_count},
+          where: s.added_count > 0,
           order_by: [desc: s.added_count, desc: t.images_count, asc: t.name],
           limit: 10,
           with_ties: true
@@ -132,6 +166,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           join: t in Tag,
           on: t.id == s.tag_id,
           select: %{tag: t, count: s.removed_count, user_count: s.removed_user_count},
+          where: s.removed_count > 0,
           order_by: [desc: s.removed_count, desc: t.images_count, asc: t.name],
           limit: 10,
           with_ties: true
@@ -281,6 +316,9 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       global_tag_change_tags: global_tag_change_tags,
       global_source_changes: global_source_changes,
       global_reports: global_reports,
+      global_top_uploaders: global_top_uploaders,
+      global_top_commenters: global_top_commenters,
+      global_top_posters: global_top_posters,
       global_top_added_tags: global_top_added_tags,
       global_top_removed_tags: global_top_removed_tags,
       user_visits: user_visits,
