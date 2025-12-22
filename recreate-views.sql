@@ -179,8 +179,6 @@ FROM
 WHERE
   source_changes.created_at >= '2025-01-01';
 
-DROP MATERIALIZED VIEW IF EXISTS derped_global_reports;
-
 DROP MATERIALIZED VIEW IF EXISTS derped_global_top_tag_change_tags;
 
 CREATE MATERIALIZED VIEW
@@ -211,6 +209,8 @@ WHERE
 GROUP BY
   tag_change_tags.tag_id,
   tag_change_tags.added;
+
+DROP MATERIALIZED VIEW IF EXISTS derped_global_reports;
 
 CREATE MATERIALIZED VIEW
   derped_global_reports AS
