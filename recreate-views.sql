@@ -120,7 +120,7 @@ FROM
   image_taggings
   INNER JOIN images ON images.id = image_taggings.image_id
 WHERE
-  created_at >= '2025-01-01';
+  image_taggings.created_at >= '2025-01-01';
 
 DROP MATERIALIZED VIEW IF EXISTS derped_global_tag_changes;
 
@@ -448,6 +448,7 @@ SELECT
     ) FILTER (
       WHERE
         NOT open
+        AND created_at != updated_at
     ),
     0::double precision
   ) AS avg_time,
