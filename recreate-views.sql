@@ -133,10 +133,31 @@ SELECT
   COUNT(DISTINCT images.id) FILTER (
     WHERE
       images.created_at >= '2025-01-01'
-  ) AS new_image_count,
+  ) AS new_image_count
 FROM
   tag_changes
   INNER JOIN images ON images.id = tag_changes.image_id
+WHERE
+  tag_changes.created_at >= '2025-01-01';
+
+DROP MATERIALIZED VIEW IF EXISTS derped_global_tag_change_tags;
+
+CREATE MATERIALIZED VIEW
+  derped_global_tag_change_tags AS
+SELECT
+  COUNT(*) AS total_count,
+  COUNT(*) FILTER (
+    WHERE
+      added
+  ) AS added_count,
+  COUNT(*) FILTER (
+    WHERE
+      NOT added
+  ) AS removed_count,
+  COUNT(DISTINCT tag_id) AS tag_count
+FROM
+  tag_changes
+  INNER JOIN tag_change_tags ON tag_change_tags.tag_change_id = tag_changes.id
 WHERE
   tag_changes.created_at >= '2025-01-01';
 
@@ -159,6 +180,37 @@ WHERE
   source_changes.created_at >= '2025-01-01';
 
 DROP MATERIALIZED VIEW IF EXISTS derped_global_reports;
+
+DROP MATERIALIZED VIEW IF EXISTS derped_global_top_tag_change_tags;
+
+CREATE MATERIALIZED VIEW
+  derped_global_top_tag_change_tags AS
+SELECT
+  tag_change_tags.tag_id,
+  COUNT(*) FILTER (
+    WHERE
+      tag_change_tags.added
+  ) AS added_count,
+  COUNT(*) FILTER (
+    WHERE
+      NOT tag_change_tags.added
+  ) AS removed_count,
+  COUNT(DISTINCT tag_changes.user_id) FILTER (
+    WHERE
+      tag_change_tags.added
+  ) AS added_user_count,
+  COUNT(DISTINCT tag_changes.user_id) FILTER (
+    WHERE
+      NOT tag_change_tags.added
+  ) AS removed_user_count
+FROM
+  tag_changes
+  INNER JOIN tag_change_tags ON tag_change_tags.tag_change_id = tag_changes.id
+WHERE
+  tag_changes.created_at >= '2025-01-01'
+GROUP BY
+  tag_change_tags.tag_id,
+  tag_change_tags.added;
 
 CREATE MATERIALIZED VIEW
   derped_global_reports AS

@@ -152,6 +152,27 @@ p
     | )
   | were new this year.
 
+p
+  ' Involving
+  span.stat>
+    = number_with_delimiter(@global_tag_change_tags.total_count)
+  ' changes, of which
+  span.stat>
+    = Float.round(safe_div(@global_tag_change_tags.added_count, @global_tag_change_tags.total_count) * 100, 1)
+    | % (
+    = number_with_delimiter(@global_tag_change_tags.added_count)
+    | )
+  ' were additions and
+  span.stat>
+    = Float.round(safe_div(@global_tag_change_tags.removed_count, @global_tag_change_tags.total_count) * 100, 1)
+    | % (
+    = number_with_delimiter(@global_tag_change_tags.removed_count)
+    | )
+  ' were removals, affecting
+  span.stat>
+    = number_with_delimiter(@global_tag_change_tags.tag_count)
+  ' unique tags.
+
 h3 Source Changes
 p
   ' A total of
@@ -181,6 +202,42 @@ p
     = number_with_delimiter(@global_reports.user_count)
   | users.
 
+h3 Top Added Tags
+.block
+  table.table
+    thead
+      tr
+        th Tag
+        th Count
+        th Users
+    tbody
+      = for %{tag: tag, count: count, user_count: user_count} <- @global_top_added_tags do
+        tr
+          td
+            = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
+          td
+            = number_with_delimiter(count)
+          td
+            = number_with_delimiter(user_count)
+
+h3 Top Removed Tags
+.block
+  table.table
+    thead
+      tr
+        th Tag
+        th Count
+        th Users
+    tbody
+      = for %{tag: tag, count: count, user_count: user_count} <- @global_top_removed_tags do
+        tr
+          td
+            = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
+          td
+            = number_with_delimiter(count)
+          td
+            = number_with_delimiter(user_count)
+
 h2 Your Statistics
 
 h3 Time
@@ -195,7 +252,7 @@ h3 Time
     | hours of browsing.
     = ranked(@user_visits)
   = if @user_visits.total >= 600 do
-    p You joined us this year and have been here ever since! Welcome to the ride :)  
+    p You joined us this year and have been here ever since! Welcome to the ride :)
 - else
   p
     ' You visited Derpibooru a total of
