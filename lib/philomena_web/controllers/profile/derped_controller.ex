@@ -145,6 +145,54 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           with_ties: true
       )
 
+    global_top_favers =
+      Repo.all(
+        from s in "derped_user_faves",
+          join: u in User,
+          on: u.id == s.user_id,
+          select: %{user: map(u, [:slug, :name])},
+          select_merge: map(s, [:count]),
+          order_by: [desc: s.count],
+          limit: 10,
+          with_ties: true
+      )
+
+    global_top_voters =
+      Repo.all(
+        from s in "derped_user_votes",
+          join: u in User,
+          on: u.id == s.user_id,
+          select: %{user: map(u, [:slug, :name])},
+          select_merge: map(s, [:total_count]),
+          order_by: [desc: s.total_count],
+          limit: 10,
+          with_ties: true
+      )
+
+    global_top_tag_changers =
+      Repo.all(
+        from s in "derped_user_tag_changes",
+          join: u in User,
+          on: u.id == s.user_id,
+          select: %{user: map(u, [:slug, :name])},
+          select_merge: map(s, [:count, :image_count]),
+          order_by: [desc: s.count],
+          limit: 10,
+          with_ties: true
+      )
+
+    global_top_source_changers =
+      Repo.all(
+        from s in "derped_user_source_changes",
+          join: u in User,
+          on: u.id == s.user_id,
+          select: %{user: map(u, [:slug, :name])},
+          select_merge: map(s, [:count, :image_count]),
+          order_by: [desc: s.count],
+          limit: 10,
+          with_ties: true
+      )
+
     global_top_added_tags =
       Repo.all(
         from s in "derped_global_top_tag_change_tags",
@@ -315,6 +363,10 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       global_top_uploaders: global_top_uploaders,
       global_top_commenters: global_top_commenters,
       global_top_posters: global_top_posters,
+      global_top_favers: global_top_favers,
+      global_top_voters: global_top_voters,
+      global_top_tag_changers: global_top_tag_changers,
+      global_top_source_changers: global_top_source_changers,
       global_top_added_tags: global_top_added_tags,
       global_top_removed_tags: global_top_removed_tags,
       user_visits: user_visits,

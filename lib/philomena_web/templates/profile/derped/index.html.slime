@@ -233,6 +233,68 @@ table.table
         td
           = number_with_delimiter(topic_count)
 
+h3 Top Favers
+table.table
+  thead
+    tr
+      th User
+      th Faves
+  tbody
+    = for %{user: user, count: count} <- @global_top_favers do
+      tr
+        td
+          = link user.name, to: ~p"/profiles/#{user.slug}"
+        td
+          = number_with_delimiter(count)
+
+h3 Top Voters
+table.table
+  thead
+    tr
+      th User
+      th Votes
+  tbody
+    = for %{user: user, total_count: count} <- @global_top_voters do
+      tr
+        td
+          = link user.name, to: ~p"/profiles/#{user.slug}"
+        td
+          = number_with_delimiter(count)
+
+h3 Top Tag Changers
+table.table
+  thead
+    tr
+      th User
+      th Tag Changes
+      th Across images
+  tbody
+    = for %{user: user, count: count, image_count: image_count} <- @global_top_tag_changers do
+      tr
+        td
+          = link user.name, to: ~p"/profiles/#{user.slug}"
+        td
+          = number_with_delimiter(count)
+        td
+          = number_with_delimiter(image_count)
+
+h3 Top Source Changers
+table.table
+  thead
+    tr
+      th User
+      th Source Changes
+      th Across images
+  tbody
+    = for %{user: user, count: count, image_count: image_count} <- @global_top_source_changers do
+      tr
+        td
+          = link user.name, to: ~p"/profiles/#{user.slug}"
+        td
+          = number_with_delimiter(count)
+        td
+          = number_with_delimiter(image_count)
+
 h3 Top Added Tags
 table.table
   thead
