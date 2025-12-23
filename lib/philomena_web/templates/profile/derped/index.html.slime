@@ -529,13 +529,16 @@ table.table
     tr
       th Tag
       th Times added
+      th Rank among all users
   tbody
-    = for %{tag: tag, count: count} <- @user_top_added_tags do
+    = for %{tag: tag, count: count, rank: rank, ntile: ntile} <- @user_top_added_tags do
       tr
         td
           = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
         td
           = number_with_delimiter(count)
+        td
+          = rank(rank, ntile)
 
 h3 Top Removed Tags
 table.table
@@ -543,10 +546,13 @@ table.table
     tr
       th Tag
       th Times removed
+      th Rank among all users
   tbody
-    = for %{tag: tag, count: count} <- @user_top_removed_tags do
+    = for %{tag: tag, count: count, rank: rank, ntile: ntile} <- @user_top_removed_tags do
       tr
         td
           = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
         td
           = number_with_delimiter(count)
+        td
+          = rank(rank, ntile)

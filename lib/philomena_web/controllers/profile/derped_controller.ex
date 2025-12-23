@@ -354,7 +354,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           where: s.user_id == ^user.id,
           where: s.added,
           select: %{tag: t},
-          select_merge: map(s, [:count]),
+          select_merge: map(s, [:count, :rank, :ntile]),
           order_by: [desc: s.count, desc: t.images_count, asc: t.name],
           limit: 10,
           with_ties: true
@@ -368,7 +368,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           where: s.user_id == ^user.id,
           where: not s.added,
           select: %{tag: t},
-          select_merge: map(s, [:count]),
+          select_merge: map(s, [:count, :rank, :ntile]),
           order_by: [desc: s.count, desc: t.images_count, asc: t.name],
           limit: 10,
           with_ties: true

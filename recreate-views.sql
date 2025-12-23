@@ -187,7 +187,21 @@ SELECT
   tag_changes.user_id,
   tag_change_tags.tag_id,
   tag_change_tags.added,
-  COUNT(*) AS count
+  COUNT(*) AS count,
+  DENSE_RANK() OVER (
+    PARTITION BY
+      tag_change_tags.tag_id,
+      tag_change_tags.added
+    ORDER BY
+      COUNT(*) DESC
+  ) AS rank,
+  NTILE(100) OVER (
+    PARTITION BY
+      tag_change_tags.tag_id,
+      tag_change_tags.added
+    ORDER BY
+      COUNT(*) DESC
+  )
 FROM
   tag_changes
   INNER JOIN tag_change_tags ON tag_change_tags.tag_change_id = tag_changes.id
