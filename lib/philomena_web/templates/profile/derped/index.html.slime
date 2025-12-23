@@ -186,13 +186,41 @@ p
 h2 Global Leaderboards
 
 h3 Top Tags Across New Images
+
+h4 Ratings
 table.table
   thead
     tr
       th Tag
       th Images
   tbody
-    = for %{tag: tag, count: count} <- @global_top_taggings do
+    = for %{tag: tag, count: count} <- @global_top_rating_taggings do
+      tr
+        td
+          = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
+        td
+          = number_with_delimiter(count)
+h4 Content
+table.table
+  thead
+    tr
+      th Tag
+      th Images
+  tbody
+    = for %{tag: tag, count: count} <- @global_top_content_official_taggings do
+      tr
+        td
+          = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
+        td
+          = number_with_delimiter(count)
+h4 Characters
+table.table
+  thead
+    tr
+      th Tag
+      th Images
+  tbody
+    = for %{tag: tag, count: count} <- @global_top_character_taggings do
       tr
         td
           = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn

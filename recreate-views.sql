@@ -161,19 +161,22 @@ FROM
 WHERE
   source_changes.created_at >= '2025-01-01';
 
-DROP MATERIALIZED VIEW IF EXISTS derped_global_top_taggings; 
+DROP MATERIALIZED VIEW IF EXISTS derped_global_top_taggings;
 
 CREATE MATERIALIZED VIEW
   derped_global_top_taggings AS
 SELECT
-  image_taggings.tag_id,
+  tags.id AS tag_id,
   COUNT(*)
 FROM
   images
   INNER JOIN image_taggings ON image_taggings.image_id = images.id
+  INNER JOIN tags ON tags.id = image_taggings.tag_id
 WHERE
   images.created_at >= '2025-01-01'
-  GROUP BY image_taggings.tag_id;
+  AND tags.category IS NOT NULL
+GROUP BY
+  tags.id;
 
 DROP MATERIALIZED VIEW IF EXISTS derped_global_top_tag_change_tags;
 
