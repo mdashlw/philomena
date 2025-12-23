@@ -198,9 +198,10 @@ defmodule PhilomenaWeb.Profile.DerpedController do
         from s in "derped_global_top_tag_change_tags",
           join: t in Tag,
           on: t.id == s.tag_id,
-          select: %{tag: t, count: s.added_count, user_count: s.added_user_count},
-          where: s.added_count > 0,
-          order_by: [desc: s.added_count, desc: t.images_count, asc: t.name],
+          select: %{tag: t},
+          select_merge: map(s, [:count, :user_count]),
+          where: s.added,
+          order_by: [desc: s.count, desc: t.images_count, asc: t.name],
           limit: 10,
           with_ties: true
       )
@@ -210,9 +211,10 @@ defmodule PhilomenaWeb.Profile.DerpedController do
         from s in "derped_global_top_tag_change_tags",
           join: t in Tag,
           on: t.id == s.tag_id,
-          select: %{tag: t, count: s.removed_count, user_count: s.removed_user_count},
-          where: s.removed_count > 0,
-          order_by: [desc: s.removed_count, desc: t.images_count, asc: t.name],
+          select: %{tag: t},
+          select_merge: map(s, [:count, :user_count]),
+          where: not s.added,
+          order_by: [desc: s.count, desc: t.images_count, asc: t.name],
           limit: 10,
           with_ties: true
       )
@@ -344,6 +346,34 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           with_ties: true
       )
 
+    user_top_added_tags =
+      Repo.all(
+        from s in "derped_user_top_tag_change_tags",
+          join: t in Tag,
+          on: t.id == s.tag_id,
+          where: s.user_id == ^user.id,
+          where: s.added,
+          select: %{tag: t},
+          select_merge: map(s, [:count]),
+          order_by: [desc: s.count, desc: t.images_count, asc: t.name],
+          limit: 10,
+          with_ties: true
+      )
+
+    user_top_removed_tags =
+      Repo.all(
+        from s in "derped_user_top_tag_change_tags",
+          join: t in Tag,
+          on: t.id == s.tag_id,
+          where: s.user_id == ^user.id,
+          where: not s.added,
+          select: %{tag: t},
+          select_merge: map(s, [:count]),
+          order_by: [desc: s.count, desc: t.images_count, asc: t.name],
+          limit: 10,
+          with_ties: true
+      )
+
     render(
       conn,
       "index.html",
@@ -381,7 +411,9 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       user_reports: user_reports,
       user_top_faved_character_tags: user_top_faved_character_tags,
       user_top_faved_artist_tags: user_top_faved_artist_tags,
-      user_top_faved_oc_tags: user_top_faved_oc_tags
+      user_top_faved_oc_tags: user_top_faved_oc_tags,
+      user_top_added_tags: user_top_added_tags,
+      user_top_removed_tags: user_top_removed_tags
     )
   end
 

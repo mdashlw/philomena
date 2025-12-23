@@ -4,10 +4,10 @@ defmodule PhilomenaWeb.Profile.DerpedView do
   def ranked(%{rank: rank, ntile: ntile}) do
     cond do
       rank <= 100 ->
-        [" ", content_tag(:span, "Ranked ##{rank} among all users!", class: "underline")]
+        [" ", content_tag(:u, "Ranked ##{rank} among all users!")]
 
       ntile <= 10 ->
-        [" ", content_tag(:span, "Top #{ntile}% among all users!", class: "underline")]
+        [" ", content_tag(:u, "Top #{ntile}% among all users!")]
 
       true ->
         ""
@@ -22,11 +22,7 @@ defmodule PhilomenaWeb.Profile.DerpedView do
     end
   end
 
-  def safe_div(value, total) do
-    if total != 0 do
-      value / total
-    else
-      0.0
-    end
-  end
+  def safe_div(value, total) when is_nil(value) or is_nil(total), do: 0.0
+  def safe_div(value, total) when total == 0, do: 0.0
+  def safe_div(value, total), do: value / total
 end

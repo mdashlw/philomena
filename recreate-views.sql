@@ -167,28 +167,35 @@ CREATE MATERIALIZED VIEW
   derped_global_top_tag_change_tags AS
 SELECT
   tag_change_tags.tag_id,
-  COUNT(*) FILTER (
-    WHERE
-      tag_change_tags.added
-  ) AS added_count,
-  COUNT(*) FILTER (
-    WHERE
-      NOT tag_change_tags.added
-  ) AS removed_count,
-  COUNT(DISTINCT tag_changes.user_id) FILTER (
-    WHERE
-      tag_change_tags.added
-  ) AS added_user_count,
-  COUNT(DISTINCT tag_changes.user_id) FILTER (
-    WHERE
-      NOT tag_change_tags.added
-  ) AS removed_user_count
+  tag_change_tags.added,
+  COUNT(*),
+  COUNT(DISTINCT tag_changes.user_id) AS user_count
 FROM
   tag_changes
   INNER JOIN tag_change_tags ON tag_change_tags.tag_change_id = tag_changes.id
 WHERE
   tag_changes.created_at >= '2025-01-01'
 GROUP BY
+  tag_change_tags.tag_id,
+  tag_change_tags.added;
+
+DROP MATERIALIZED VIEW IF EXISTS derped_user_top_tag_change_tags;
+
+CREATE MATERIALIZED VIEW
+  derped_user_top_tag_change_tags AS
+SELECT
+  tag_changes.user_id,
+  tag_change_tags.tag_id,
+  tag_change_tags.added,
+  COUNT(*) AS count
+FROM
+  tag_changes
+  INNER JOIN tag_change_tags ON tag_change_tags.tag_change_id = tag_changes.id
+WHERE
+  tag_changes.created_at >= '2025-01-01'
+  AND tag_changes.user_id IS NOT NULL
+GROUP BY
+  tag_changes.user_id,
   tag_change_tags.tag_id,
   tag_change_tags.added;
 
