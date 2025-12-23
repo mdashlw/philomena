@@ -109,6 +109,18 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           select: map(s, [:count, :user_count])
       )
 
+    global_top_taggings =
+      Repo.all(
+        from s in "derped_global_top_taggings",
+          join: t in Tag,
+          on: t.id == s.tag_id,
+          select: %{tag: t},
+          select_merge: map(s, [:count]),
+          order_by: [desc: s.count, desc: t.images_count, asc: t.name],
+          limit: 10,
+          with_ties: true
+      )
+
     global_top_uploaders =
       Repo.all(
         from s in "derped_user_images",
@@ -355,7 +367,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           where: s.added,
           select: %{tag: t},
           select_merge: map(s, [:count, :rank, :ntile]),
-          order_by: [desc: s.count, desc: t.images_count, asc: t.name],
+          order_by: [desc: s.count, asc: s.rank, desc: t.images_count, asc: t.name],
           limit: 10,
           with_ties: true
       )
@@ -369,7 +381,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           where: not s.added,
           select: %{tag: t},
           select_merge: map(s, [:count, :rank, :ntile]),
-          order_by: [desc: s.count, desc: t.images_count, asc: t.name],
+          order_by: [desc: s.count, asc: s.rank, desc: t.images_count, asc: t.name],
           limit: 10,
           with_ties: true
       )
@@ -390,6 +402,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       global_tag_change_tags: global_tag_change_tags,
       global_source_changes: global_source_changes,
       global_reports: global_reports,
+      global_top_taggings: global_top_taggings,
       global_top_uploaders: global_top_uploaders,
       global_top_commenters: global_top_commenters,
       global_top_posters: global_top_posters,

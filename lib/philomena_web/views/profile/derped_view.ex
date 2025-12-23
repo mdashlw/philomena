@@ -23,6 +23,6 @@ defmodule PhilomenaWeb.Profile.DerpedView do
   end
 
   def safe_div(value, total) when is_nil(value) or is_nil(total), do: 0.0
-  def safe_div(value, total) when total == 0, do: 0.0
+  def safe_div(_value, total) when total == 0, do: 0.0
   def safe_div(value, total), do: value / total
 end
