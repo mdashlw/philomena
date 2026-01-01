@@ -418,6 +418,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           join: image in assoc(f, :image),
           where: f.created_at >= ^@start_of_year and f.created_at <= ^@end_of_year,
           where: f.user_id == ^user.id,
+          where: not image.hidden_from_users,
           select: f,
           distinct: fragment("EXTRACT(DOY FROM ?)", f.created_at),
           order_by: [fragment("EXTRACT(DOY FROM ?)", f.created_at), fragment("RANDOM()")],
@@ -427,7 +428,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
     interactions =
       Interactions.user_interactions(
         [user_random_daily_faves |> Enum.map(& &1.image)],
-        user
+        conn.assigns.current_user
       )
 
     render(

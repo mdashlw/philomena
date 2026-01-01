@@ -600,6 +600,7 @@ table.table
           = rank(rank, ntile)
 
 h2 A Pony a Day
+p A collection of random images you faved each day this year.
 .block
   .block__content.media-list.media-list--small
     = for %{image: image, created_at: date} <- @user_random_daily_faves do
@@ -607,4 +608,4 @@ h2 A Pony a Day
         .flex__fixed
           = render PhilomenaWeb.ImageView, "_image_box.html", image: image, size: :thumb_small, conn: @conn
         figcaption.center
-          = Calendar.strftime(date, "%B %d")
+          = Calendar.strftime(date, "%B %-d")
