@@ -11,8 +11,9 @@ h3 Users
 p
   ' A total of
   span.stat>
-    = number_with_delimiter(@global_new_user_count)
-  | new users were created this year.
+    = number_with_delimiter(@global_users.new)
+  ' new users were created this year.
+= increase_stats(@global_users.new, @global_users.overall)
 
 h3 Images
 p
@@ -23,6 +24,8 @@ p
   span.stat>
     = number_with_delimiter(@global_images.user_count)
   | users.
+
+= increase_stats(@global_images.count, @global_overall_images)
 
 h3 Comments
 p
@@ -43,6 +46,8 @@ p
     | )
   | were new this year.
 
+= increase_stats(@global_comments.count, @global_overall_comments)
+
 h3 Topics
 p
   ' A total of
@@ -52,6 +57,8 @@ p
   span.stat>
     = number_with_delimiter(@global_topics.user_count)
   | users.
+
+= increase_stats(@global_topics.count, @global_overall_topics)
 
 h3 Posts
 p
@@ -72,6 +79,8 @@ p
     | )
   | were new this year.
 
+= increase_stats(@global_posts.count, @global_overall_posts)
+
 h3 Image Faves
 p
   ' A total of
@@ -90,6 +99,8 @@ p
     = number_with_delimiter(@global_faves.new_image_count)
     | )
   | were new this year.
+
+= increase_stats(@global_faves.count, @global_overall_faves)
 
 h3 Image Votes
 p
@@ -113,6 +124,8 @@ p
     = number_with_delimiter(@global_votes.new_image_count)
     | )
   | were new this year.
+
+= increase_stats(@global_votes.total_count, @global_overall_votes)
 
 h3 Tag Changes
 p
@@ -154,6 +167,8 @@ p
     = number_with_delimiter(@global_tag_change_tags.tag_count)
   ' unique tags.
 
+= increase_stats(@global_tag_changes.count, @global_overall_tag_changes)
+
 h3 Source Changes
 p
   ' A total of
@@ -173,6 +188,8 @@ p
     | )
   | were new this year.
 
+= increase_stats(@global_source_changes.count, @global_overall_source_changes)
+
 h3 Reports
 p
   ' A total of
@@ -182,6 +199,8 @@ p
   span.stat>
     = number_with_delimiter(@global_reports.user_count)
   | users.
+
+= increase_stats(@global_reports.count, @global_overall_reports)
 
 h2 Global Leaderboards
 
@@ -603,8 +622,9 @@ h2 A Pony a Day
 p A collection of random images you faved each day this year.
 .block
   .block__content.media-list.media-list--small
-    = for %{image: image, created_at: date} <- @user_random_daily_faves do
-      flex.flex--column
+    = for {%{image: image, created_at: date}, index} <- Enum.with_index(@user_random_daily_faves) do
+      - style = if index == 0, do: "position: absolute;", else: ""
+      .flex.flex--column style=style
         .flex__fixed
           = render PhilomenaWeb.ImageView, "_image_box.html", image: image, size: :thumb_small, conn: @conn
         figcaption.center

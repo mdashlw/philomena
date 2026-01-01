@@ -23,6 +23,20 @@ defmodule PhilomenaWeb.Profile.DerpedView do
   end
 
   def safe_div(value, total) when is_nil(value) or is_nil(total), do: 0.0
-  def safe_div(_value, total) when total == 0, do: 0.0
+  def safe_div(value, total) when total == 0, do: value / 1.0
   def safe_div(value, total), do: value / total
+
+  def increase_stats(value, total) do
+    content_tag(:p) do
+      [
+        "An increase of ",
+        content_tag(:span, "#{Float.round(safe_div(value, total - value) * 100, 1)}%",
+          class: "stat"
+        ),
+        ", bringing the overall total to ",
+        content_tag(:span, number_with_delimiter(total), class: "stat"),
+        "."
+      ]
+    end
+  end
 end

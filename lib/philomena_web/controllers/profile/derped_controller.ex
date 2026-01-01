@@ -35,11 +35,14 @@ defmodule PhilomenaWeb.Profile.DerpedController do
 
     token = share_token(user)
 
-    global_new_user_count =
-      Repo.one(
+    global_users =
+      Repo.one!(
         from u in User,
-          where: u.created_at >= ^@start_of_year and u.created_at <= ^@end_of_year,
-          select: count()
+          select: %{
+            overall: count(),
+            new:
+              count() |> filter(u.created_at >= ^@start_of_year and u.created_at <= ^@end_of_year)
+          }
       )
 
     global_images =
@@ -48,17 +51,23 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           select: map(s, [:count, :user_count])
       )
 
+    global_overall_images = Repo.one!(from i in Image, select: count())
+
     global_comments =
       Repo.one!(
         from s in "derped_global_comments",
           select: map(s, [:count, :user_count, :image_count, :new_image_count])
       )
 
+    global_overall_comments = Repo.one!(from c in Comment, select: count())
+
     global_topics =
       Repo.one!(
         from s in "derped_global_topics",
           select: map(s, [:count, :user_count])
-      ) || %{count: 0, user_count: 0}
+      )
+
+    global_overall_topics = Repo.one!(from t in Topic, select: count())
 
     global_posts =
       Repo.one!(
@@ -66,11 +75,15 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           select: map(s, [:count, :user_count, :topic_count, :new_topic_count])
       )
 
+    global_overall_posts = Repo.one!(from p in Post, select: count())
+
     global_faves =
       Repo.one!(
         from s in "derped_global_faves",
           select: map(s, [:count, :user_count, :image_count, :new_image_count])
       )
+
+    global_overall_faves = Repo.one!(from f in ImageFave, select: count())
 
     global_votes =
       Repo.one!(
@@ -86,11 +99,15 @@ defmodule PhilomenaWeb.Profile.DerpedController do
             ])
       )
 
+    global_overall_votes = Repo.one!(from v in ImageVote, select: count())
+
     global_tag_changes =
       Repo.one!(
         from s in "derped_global_tag_changes",
           select: map(s, [:count, :user_count, :image_count, :new_image_count])
       )
+
+    global_overall_tag_changes = Repo.one!(from t in TagChange, select: count())
 
     global_tag_change_tags =
       Repo.one!(
@@ -104,11 +121,15 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           select: map(s, [:count, :user_count, :image_count, :new_image_count])
       )
 
+    global_overall_source_changes = Repo.one!(from s in SourceChange, select: count())
+
     global_reports =
       Repo.one!(
         from s in "derped_global_reports",
           select: map(s, [:count, :user_count])
       )
+
+    global_overall_reports = Repo.one!(from r in Report, select: count())
 
     global_top_rating_taggings =
       Repo.all(
@@ -436,17 +457,26 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       "index.html",
       title: "Derped #{@year} for User `#{user.name}'",
       token: token,
-      global_new_user_count: global_new_user_count,
+      global_users: global_users,
       global_images: global_images,
+      global_overall_images: global_overall_images,
       global_comments: global_comments,
+      global_overall_comments: global_overall_comments,
       global_topics: global_topics,
+      global_overall_topics: global_overall_topics,
       global_posts: global_posts,
+      global_overall_posts: global_overall_posts,
       global_faves: global_faves,
+      global_overall_faves: global_overall_faves,
       global_votes: global_votes,
+      global_overall_votes: global_overall_votes,
       global_tag_changes: global_tag_changes,
       global_tag_change_tags: global_tag_change_tags,
+      global_overall_tag_changes: global_overall_tag_changes,
       global_source_changes: global_source_changes,
+      global_overall_source_changes: global_overall_source_changes,
       global_reports: global_reports,
+      global_overall_reports: global_overall_reports,
       global_top_rating_taggings: global_top_rating_taggings,
       global_top_content_official_taggings: global_top_content_official_taggings,
       global_top_character_taggings: global_top_character_taggings,
