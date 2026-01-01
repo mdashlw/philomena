@@ -625,7 +625,10 @@ FROM
 WHERE
   f.created_at >= '2025-01-01'
   AND f.created_at < '2026-01-01'
-  AND t.category IS NOT NULL
+  AND (
+    t.category IS NOT NULL
+    OR t.name LIKE 'ship:%'
+  )
 GROUP BY
   t.id,
   f.user_id;

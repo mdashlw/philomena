@@ -584,6 +584,23 @@ table.table
         td
           = rank(rank, ntile)
 
+h3 Top Faved Ships
+table.table
+  thead
+    tr
+      th Tag
+      th Faves
+      th Rank among all users
+  tbody
+    = for %{tag: tag, faves: faves, rank: rank, ntile: ntile} <- @user_top_faved_ship_tags do
+      tr
+        td
+          = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
+        td
+          = number_with_delimiter(faves)
+        td
+          = rank(rank, ntile)
+
 h3 Top Added Tags
 table.table
   thead
@@ -619,7 +636,15 @@ table.table
           = rank(rank, ntile)
 
 h2 A Pony a Day
-p A collection of random images you faved each day this year.
+p
+  ' A collection of random images you faved each day this year. Total
+  => length(@user_random_daily_faves)
+  ' days.
+  = if length(@user_random_daily_faves) == 365 do
+    | Wow - that's every single day!
+  - else
+    = if length(@user_random_daily_faves) >= 360 do
+      | Wow - that's almost every single day!
 .block
   .block__content.media-list.media-list--small
     = for {%{image: image, created_at: date}, index} <- Enum.with_index(@user_random_daily_faves) do

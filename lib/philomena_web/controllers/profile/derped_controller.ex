@@ -396,6 +396,20 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           with_ties: true
       )
 
+    user_top_faved_ship_tags =
+      Repo.all(
+        from s in "derped_faved_tags",
+          join: t in Tag,
+          on: t.id == s.tag_id,
+          where: s.user_id == ^user.id,
+          where: like(t.name, "ship:%"),
+          select: %{tag: t},
+          select_merge: map(s, [:faves, :rank, :ntile]),
+          order_by: [desc: s.faves, asc: s.rank, desc: t.images_count, asc: t.name],
+          limit: 10,
+          with_ties: true
+      )
+
     user_top_added_tags =
       Repo.all(
         from s in "derped_user_top_tag_change_tags",
@@ -484,6 +498,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       user_top_faved_character_tags: user_top_faved_character_tags,
       user_top_faved_artist_tags: user_top_faved_artist_tags,
       user_top_faved_oc_tags: user_top_faved_oc_tags,
+      user_top_faved_ship_tags: user_top_faved_ship_tags,
       user_top_added_tags: user_top_added_tags,
       user_top_removed_tags: user_top_removed_tags,
       user_random_daily_faves: user_random_daily_faves,
