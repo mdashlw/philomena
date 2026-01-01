@@ -598,3 +598,13 @@ table.table
           = number_with_delimiter(count)
         td
           = rank(rank, ntile)
+
+h2 A Pony a Day
+.block
+  .block__content.media-list.media-list--small
+    = for %{image: image, created_at: date} <- @user_random_daily_faves do
+      flex.flex--column
+        .flex__fixed
+          = render PhilomenaWeb.ImageView, "_image_box.html", image: image, size: :thumb_small, conn: @conn
+        figcaption.center
+          = Calendar.strftime(date, "%B %d")

@@ -15,6 +15,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
   alias Philomena.Tags.Tag
   alias Philomena.Repo
   alias Philomena.UserIps.UserIp
+  alias Philomena.Interactions
   import Ecto.Query
 
   plug :load_resource,
@@ -411,6 +412,24 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           with_ties: true
       )
 
+    user_random_daily_faves =
+      Repo.all(
+        from f in ImageFave,
+          join: image in assoc(f, :image),
+          where: f.created_at >= ^@start_of_year and f.created_at <= ^@end_of_year,
+          where: f.user_id == ^user.id,
+          select: f,
+          distinct: fragment("EXTRACT(DOY FROM ?)", f.created_at),
+          order_by: [fragment("EXTRACT(DOY FROM ?)", f.created_at), fragment("RANDOM()")],
+          preload: [image: [:sources, tags: :aliases]]
+      )
+
+    interactions =
+      Interactions.user_interactions(
+        [user_random_daily_faves |> Enum.map(& &1.image)],
+        user
+      )
+
     render(
       conn,
       "index.html",
@@ -453,7 +472,9 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       user_top_faved_artist_tags: user_top_faved_artist_tags,
       user_top_faved_oc_tags: user_top_faved_oc_tags,
       user_top_added_tags: user_top_added_tags,
-      user_top_removed_tags: user_top_removed_tags
+      user_top_removed_tags: user_top_removed_tags,
+      user_random_daily_faves: user_random_daily_faves,
+      interactions: interactions
     )
   end
 
