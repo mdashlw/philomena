@@ -1,5 +1,80 @@
 BEGIN;
 
+DROP MATERIALIZED VIEW IF EXISTS derped_global_overalls;
+
+CREATE MATERIALIZED VIEW
+  derped_global_overalls AS
+SELECT
+  (
+    SELECT
+      COUNT(*)
+    FROM
+      users
+  ) AS user_count,
+  (
+    SELECT
+      COUNT(*)
+    FROM
+      users
+    WHERE
+      created_at >= '2025-01-01'
+      AND created_at < '2026-01-01'
+  ) AS new_user_count,
+  (
+    SELECT
+      COUNT(*)
+    FROM
+      images
+  ) AS image_count,
+  (
+    SELECT
+      COUNT(*)
+    FROM
+      comments
+  ) AS comment_count,
+  (
+    SELECT
+      COUNT(*)
+    FROM
+      topics
+  ) AS topic_count,
+  (
+    SELECT
+      COUNT(*)
+    FROM
+      posts
+  ) AS post_count,
+  (
+    SELECT
+      COUNT(*)
+    FROM
+      image_faves
+  ) AS image_fave_count,
+  (
+    SELECT
+      COUNT(*)
+    FROM
+      image_votes
+  ) AS image_vote_count,
+  (
+    SELECT
+      COUNT(*)
+    FROM
+      tag_changes
+  ) AS tag_change_count,
+  (
+    SELECT
+      COUNT(*)
+    FROM
+      source_changes
+  ) AS source_change_count,
+  (
+    SELECT
+      COUNT(*)
+    FROM
+      reports
+  ) AS report_count;
+
 DROP MATERIALIZED VIEW IF EXISTS derped_global_images;
 
 CREATE MATERIALIZED VIEW
@@ -10,7 +85,8 @@ SELECT
 FROM
   images
 WHERE
-  created_at >= '2025-01-01';
+  created_at >= '2025-01-01'
+  AND created_at < '2026-01-01';
 
 DROP MATERIALIZED VIEW IF EXISTS derped_global_comments;
 
@@ -23,12 +99,14 @@ SELECT
   COUNT(DISTINCT images.id) FILTER (
     WHERE
       images.created_at >= '2025-01-01'
+      AND images.created_at < '2026-01-01'
   ) AS new_image_count
 FROM
   comments
   INNER JOIN images ON images.id = comments.image_id
 WHERE
-  comments.created_at >= '2025-01-01';
+  comments.created_at >= '2025-01-01'
+  AND comments.created_at < '2026-01-01';
 
 DROP MATERIALIZED VIEW IF EXISTS derped_global_topics;
 
@@ -40,7 +118,8 @@ SELECT
 FROM
   topics
 WHERE
-  created_at >= '2025-01-01';
+  created_at >= '2025-01-01'
+  AND created_at < '2026-01-01';
 
 DROP MATERIALIZED VIEW IF EXISTS derped_global_posts;
 
@@ -53,12 +132,14 @@ SELECT
   COUNT(DISTINCT topics.id) FILTER (
     WHERE
       topics.created_at >= '2025-01-01'
+      AND topics.created_at < '2026-01-01'
   ) AS new_topic_count
 FROM
   posts
   INNER JOIN topics ON topics.id = posts.topic_id
 WHERE
-  posts.created_at >= '2025-01-01';
+  posts.created_at >= '2025-01-01'
+  AND posts.created_at < '2026-01-01';
 
 DROP MATERIALIZED VIEW IF EXISTS derped_global_faves;
 
@@ -71,12 +152,14 @@ SELECT
   COUNT(DISTINCT images.id) FILTER (
     WHERE
       images.created_at >= '2025-01-01'
+      AND images.created_at < '2026-01-01'
   ) AS new_image_count
 FROM
   image_faves
   INNER JOIN images ON images.id = image_faves.image_id
 WHERE
-  image_faves.created_at >= '2025-01-01';
+  image_faves.created_at >= '2025-01-01'
+  AND image_faves.created_at < '2026-01-01';
 
 DROP MATERIALIZED VIEW IF EXISTS derped_global_votes;
 
@@ -97,12 +180,14 @@ SELECT
   COUNT(DISTINCT images.id) FILTER (
     WHERE
       images.created_at >= '2025-01-01'
+      AND images.created_at < '2026-01-01'
   ) AS new_image_count
 FROM
   image_votes
   INNER JOIN images ON images.id = image_votes.image_id
 WHERE
-  image_votes.created_at >= '2025-01-01';
+  image_votes.created_at >= '2025-01-01'
+  AND image_votes.created_at < '2026-01-01';
 
 DROP MATERIALIZED VIEW IF EXISTS derped_global_tag_changes;
 
@@ -115,12 +200,14 @@ SELECT
   COUNT(DISTINCT images.id) FILTER (
     WHERE
       images.created_at >= '2025-01-01'
+      AND images.created_at < '2026-01-01'
   ) AS new_image_count
 FROM
   tag_changes
   INNER JOIN images ON images.id = tag_changes.image_id
 WHERE
-  tag_changes.created_at >= '2025-01-01';
+  tag_changes.created_at >= '2025-01-01'
+  AND tag_changes.created_at < '2026-01-01';
 
 DROP MATERIALIZED VIEW IF EXISTS derped_global_tag_change_tags;
 
@@ -141,7 +228,8 @@ FROM
   tag_changes
   INNER JOIN tag_change_tags ON tag_change_tags.tag_change_id = tag_changes.id
 WHERE
-  tag_changes.created_at >= '2025-01-01';
+  tag_changes.created_at >= '2025-01-01'
+  AND tag_changes.created_at < '2026-01-01';
 
 DROP MATERIALIZED VIEW IF EXISTS derped_global_source_changes;
 
@@ -154,12 +242,14 @@ SELECT
   COUNT(DISTINCT images.id) FILTER (
     WHERE
       images.created_at >= '2025-01-01'
+      AND images.created_at < '2026-01-01'
   ) AS new_image_count
 FROM
   source_changes
   INNER JOIN images ON images.id = source_changes.image_id
 WHERE
-  source_changes.created_at >= '2025-01-01';
+  source_changes.created_at >= '2025-01-01'
+  AND source_changes.created_at < '2026-01-01';
 
 DROP MATERIALIZED VIEW IF EXISTS derped_global_top_taggings;
 
@@ -174,6 +264,7 @@ FROM
   INNER JOIN tags ON tags.id = image_taggings.tag_id
 WHERE
   images.created_at >= '2025-01-01'
+  AND images.created_at < '2026-01-01'
   AND tags.category IS NOT NULL
 GROUP BY
   tags.id;
@@ -192,6 +283,7 @@ FROM
   INNER JOIN tag_change_tags ON tag_change_tags.tag_change_id = tag_changes.id
 WHERE
   tag_changes.created_at >= '2025-01-01'
+  AND tag_changes.created_at < '2026-01-01'
 GROUP BY
   tag_change_tags.tag_id,
   tag_change_tags.added;
@@ -224,6 +316,7 @@ FROM
   INNER JOIN tag_change_tags ON tag_change_tags.tag_change_id = tag_changes.id
 WHERE
   tag_changes.created_at >= '2025-01-01'
+  AND tag_changes.created_at < '2026-01-01'
   AND tag_changes.user_id IS NOT NULL
 GROUP BY
   tag_changes.user_id,
@@ -240,7 +333,8 @@ SELECT
 FROM
   reports
 WHERE
-  created_at >= '2025-01-01';
+  created_at >= '2025-01-01'
+  AND created_at < '2026-01-01';
 
 DROP MATERIALIZED VIEW IF EXISTS derped_user_visits;
 
@@ -260,6 +354,7 @@ FROM
   user_ips AS ui
 WHERE
   created_at >= '2025-01-01'
+  AND created_at < '2026-01-01'
 GROUP BY
   user_id;
 
@@ -282,6 +377,7 @@ FROM
   images
 WHERE
   created_at >= '2025-01-01'
+  AND created_at < '2026-01-01'
   AND user_id IS NOT NULL
 GROUP BY
   user_id;
@@ -306,6 +402,7 @@ FROM
   comments
 WHERE
   created_at >= '2025-01-01'
+  AND created_at < '2026-01-01'
   AND user_id IS NOT NULL
 GROUP BY
   user_id;
@@ -329,6 +426,7 @@ FROM
   topics
 WHERE
   created_at >= '2025-01-01'
+  AND created_at < '2026-01-01'
   AND user_id IS NOT NULL
 GROUP BY
   user_id;
@@ -353,6 +451,7 @@ FROM
   posts
 WHERE
   created_at >= '2025-01-01'
+  AND created_at < '2026-01-01'
   AND user_id IS NOT NULL
 GROUP BY
   user_id;
@@ -376,6 +475,7 @@ FROM
   image_faves
 WHERE
   created_at >= '2025-01-01'
+  AND created_at < '2026-01-01'
 GROUP BY
   user_id;
 
@@ -406,6 +506,7 @@ FROM
   image_votes
 WHERE
   created_at >= '2025-01-01'
+  AND created_at < '2026-01-01'
 GROUP BY
   user_id;
 
@@ -429,6 +530,7 @@ FROM
   tag_changes
 WHERE
   created_at >= '2025-01-01'
+  AND created_at < '2026-01-01'
   AND user_id IS NOT NULL
 GROUP BY
   user_id;
@@ -453,6 +555,7 @@ FROM
   source_changes
 WHERE
   created_at >= '2025-01-01'
+  AND created_at < '2026-01-01'
   AND user_id IS NOT NULL
 GROUP BY
   user_id;
@@ -490,6 +593,7 @@ FROM
   reports
 WHERE
   created_at >= '2025-01-01'
+  AND created_at < '2026-01-01'
   AND user_id IS NOT NULL
 GROUP BY
   user_id;
@@ -520,6 +624,7 @@ FROM
   INNER JOIN tags AS t ON t.id = it.tag_id
 WHERE
   f.created_at >= '2025-01-01'
+  AND f.created_at < '2026-01-01'
   AND t.category IS NOT NULL
 GROUP BY
   t.id,
