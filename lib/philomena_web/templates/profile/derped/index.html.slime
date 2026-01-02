@@ -42,11 +42,7 @@ p
   span.stat>
     = number_with_delimiter(@global_comments.image_count)
   ' images, of which
-  span.stat>
-    = Float.round(safe_div(@global_comments.new_image_count, @global_comments.image_count) * 100, 1)
-    | % (
-    = number_with_delimiter(@global_comments.new_image_count)
-    | )
+  => stat_with_percent(@global_comments.new_image_count, @global_comments.image_count)
   | were new this year.
 
 = increase_stats(@global_comments.count, @global_overalls.comment_count)
@@ -75,11 +71,7 @@ p
   span.stat>
     = number_with_delimiter(@global_posts.topic_count)
   ' topics, of which
-  span.stat>
-    = Float.round(safe_div(@global_posts.new_topic_count, @global_posts.topic_count) * 100, 1)
-    | % (
-    = number_with_delimiter(@global_posts.new_topic_count)
-    | )
+  => stat_with_percent(@global_posts.new_topic_count, @global_posts.topic_count)
   | were new this year.
 
 = increase_stats(@global_posts.count, @global_overalls.post_count)
@@ -96,11 +88,7 @@ p
   span.stat>
     = number_with_delimiter(@global_faves.image_count)
   ' images, of which
-  span.stat>
-    = Float.round(safe_div(@global_faves.new_image_count, @global_faves.image_count) * 100, 1)
-    | % (
-    = number_with_delimiter(@global_faves.new_image_count)
-    | )
+  => stat_with_percent(@global_faves.new_image_count, @global_faves.image_count)
   | were new this year.
 
 = increase_stats(@global_faves.count, @global_overalls.image_fave_count)
@@ -121,11 +109,7 @@ p
   span.stat>
     = number_with_delimiter(@global_votes.image_count)
   ' images, of which
-  span.stat>
-    = Float.round(safe_div(@global_votes.new_image_count, @global_votes.image_count) * 100, 1)
-    | % (
-    = number_with_delimiter(@global_votes.new_image_count)
-    | )
+  => stat_with_percent(@global_votes.new_image_count, @global_votes.image_count)
   | were new this year.
 
 = increase_stats(@global_votes.total_count, @global_overalls.image_vote_count)
@@ -142,11 +126,7 @@ p
   span.stat>
     = number_with_delimiter(@global_tag_changes.image_count)
   ' images, of which
-  span.stat>
-    = Float.round(safe_div(@global_tag_changes.new_image_count, @global_tag_changes.image_count) * 100, 1)
-    | % (
-    = number_with_delimiter(@global_tag_changes.new_image_count)
-    | )
+  => stat_with_percent(@global_tag_changes.new_image_count, @global_tag_changes.image_count)
   | were new this year.
 
 p
@@ -154,17 +134,9 @@ p
   span.stat>
     = number_with_delimiter(@global_tag_change_tags.total_count)
   ' changes, of which
-  span.stat>
-    = Float.round(safe_div(@global_tag_change_tags.added_count, @global_tag_change_tags.total_count) * 100, 1)
-    | % (
-    = number_with_delimiter(@global_tag_change_tags.added_count)
-    | )
+  => stat_with_percent(@global_tag_change_tags.added_count, @global_tag_change_tags.total_count)
   ' were additions and
-  span.stat>
-    = Float.round(safe_div(@global_tag_change_tags.removed_count, @global_tag_change_tags.total_count) * 100, 1)
-    | % (
-    = number_with_delimiter(@global_tag_change_tags.removed_count)
-    | )
+  => stat_with_percent(@global_tag_change_tags.removed_count, @global_tag_change_tags.total_count)
   ' were removals, affecting
   span.stat>
     = number_with_delimiter(@global_tag_change_tags.tag_count)
@@ -184,11 +156,7 @@ p
   span.stat>
     = number_with_delimiter(@global_source_changes.image_count)
   ' images, of which
-  span.stat>
-    = Float.round(safe_div(@global_source_changes.new_image_count, @global_source_changes.image_count) * 100, 1)
-    | % (
-    = number_with_delimiter(@global_source_changes.new_image_count)
-    | )
+  => stat_with_percent(@global_source_changes.new_image_count, @global_source_changes.image_count)
   | were new this year.
 
 = increase_stats(@global_source_changes.count, @global_overalls.source_change_count)
@@ -658,7 +626,90 @@ p
     = for {%{image: image, created_at: date}, index} <- Enum.with_index(@user_random_daily_images) do
       - style = if index == 0, do: "position: absolute;", else: ""
       .flex.flex--column style=style
-        .flex__fixed
-          = render PhilomenaWeb.ImageView, "_image_box.html", image: image, size: :thumb_small, conn: @conn
+        = render PhilomenaWeb.ImageView, "_image_box.html", image: image, size: :thumb_small, conn: @conn
         figcaption.center
           = Calendar.strftime(date, "%B %-d")
+
+= if Enum.any?(@linked_tags) do
+  h2 You as an Artist
+  = for %{tag: tag, stats: stats, most_faved_images: most_faved_images, most_scored_images: most_scored_images, most_commented_on_images: most_commented_on_images} <- @linked_tags do
+    = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
+    p
+      ' You created
+      span.stat>
+        = number_with_delimiter(stats.new_images_count)
+      ' images this year.
+    = increase_stats(stats.new_images_count, stats.overall_images_count)
+    br
+    p
+      ' You received a total of
+      span.stat>
+        = number_with_delimiter(stats.new_faves_count)
+      ' faves this year, of which
+      => stat_with_percent(stats.new_images_faves_count, stats.new_faves_count)
+      | were on new images.
+    = increase_stats(stats.new_faves_count, stats.overall_faves_count)
+    p
+      ' Averages per image of
+      span.stat>
+        = number_with_delimiter(round(safe_div(stats.overall_faves_count, stats.overall_images_count)))
+      ' overall and
+      span.stat>
+        = number_with_delimiter(round(safe_div(stats.new_images_faves_count, stats.new_images_count)))
+      | this year.
+    br
+    p
+      ' You received a total of
+      span.stat>
+        = number_with_delimiter(stats.new_upvotes_count)
+      ' upvotes this year, of which
+      => stat_with_percent(stats.new_images_upvotes_count, stats.new_upvotes_count)
+      | were on new images.
+    = increase_stats(stats.new_upvotes_count, stats.overall_upvotes_count)
+    p
+      ' Averages per image of
+      span.stat>
+        = number_with_delimiter(round(safe_div(stats.overall_upvotes_count, stats.overall_images_count)))
+      ' overall and
+      span.stat>
+        = number_with_delimiter(round(safe_div(stats.new_images_upvotes_count, stats.new_images_count)))
+      | this year.
+    br
+    p
+      ' You received a total of
+      span.stat>
+        = number_with_delimiter(stats.new_comments_count)
+      ' comments this year, of which
+      => stat_with_percent(stats.new_images_comments_count, stats.new_comments_count)
+      | were on new images.
+    = increase_stats(stats.new_comments_count, stats.overall_comments_count)
+    p
+      ' Averages per image of
+      span.stat>
+        = number_with_delimiter(round(safe_div(stats.overall_comments_count, stats.overall_images_count)))
+      ' overall and
+      span.stat>
+        = number_with_delimiter(round(safe_div(stats.new_images_comments_count, stats.new_images_count)))
+      | this year.
+    .block
+      .block__content.media-list.media-list--small
+        = for {image, index} <- Enum.with_index(most_faved_images) do
+          - style = if index == 0, do: "position: absolute;", else: ""
+          .flex.flex--column style=style
+            = render PhilomenaWeb.ImageView, "_image_box.html", image: image, size: :thumb_small, conn: @conn
+            figcaption.center
+              = "Most faved ##{index + 1}"
+      .block__content.media-list.media-list--small
+        = for {image, index} <- Enum.with_index(most_scored_images) do
+          - style = if index == 0, do: "position: absolute;", else: ""
+          .flex.flex--column style=style
+            = render PhilomenaWeb.ImageView, "_image_box.html", image: image, size: :thumb_small, conn: @conn
+            figcaption.center
+              = "Most scored ##{index + 1}"
+      .block__content.media-list.media-list--small
+        = for {image, index} <- Enum.with_index(most_commented_on_images) do
+          - style = if index == 0, do: "position: absolute;", else: ""
+          .flex.flex--column style=style
+            = render PhilomenaWeb.ImageView, "_image_box.html", image: image, size: :thumb_small, conn: @conn
+            figcaption.center
+              = "Most commented-on ##{index + 1}"

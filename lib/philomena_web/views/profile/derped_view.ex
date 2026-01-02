@@ -40,6 +40,17 @@ defmodule PhilomenaWeb.Profile.DerpedView do
     end
   end
 
+  def stat_with_percent(value, total) do
+    content_tag(:span, class: "stat") do
+      [
+        to_string(Float.round(safe_div(value, total) * 100, 1)),
+        "% (",
+        to_string(number_with_delimiter(value)),
+        ")"
+      ]
+    end
+  end
+
   def scope(conn) do
     []
     |> scope(conn, "token", :token)

@@ -22,7 +22,8 @@ defmodule PhilomenaWeb.Profile.DerpedController do
     model: User,
     id_field: "slug",
     id_name: "profile_id",
-    persisted: true
+    persisted: true,
+    preload: [verified_links: :tag]
 
   plug :verify_authorized
 
@@ -456,9 +457,113 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           preload: [image: [:sources, tags: :aliases]]
       )
 
+    verified_links_tag_ids = user.verified_links |> Enum.map(& &1.tag_id)
+
+    linked_tags_stats =
+      Repo.all(
+        from tag in Tag,
+          join: tagging in Tagging,
+          on: tagging.tag_id == tag.id,
+          join: image in assoc(tagging, :image),
+          left_join: fave in assoc(image, :faves),
+          left_join: upvote in assoc(image, :upvotes),
+          left_join: comment in assoc(image, :comments),
+          where: tag.id in ^verified_links_tag_ids,
+          where: not image.hidden_from_users,
+          group_by: tag.id,
+          select: %{
+            tag_id: tag.id,
+            overall_images_count: count(image, :distinct),
+            overall_faves_count: count(fave, :distinct),
+            overall_upvotes_count: count(upvote, :distinct),
+            overall_comments_count: count(comment, :distinct),
+            new_images_count:
+              count(image, :distinct)
+              |> filter(
+                image.first_seen_at >= ^@start_of_year and image.first_seen_at <= ^@end_of_year
+              )
+              |> selected_as(:new_images_count),
+            new_images_faves_count:
+              count(fave, :distinct)
+              |> filter(
+                image.first_seen_at >= ^@start_of_year and image.first_seen_at <= ^@end_of_year
+              ),
+            new_images_upvotes_count:
+              count(upvote, :distinct)
+              |> filter(
+                image.first_seen_at >= ^@start_of_year and image.first_seen_at <= ^@end_of_year
+              ),
+            new_images_comments_count:
+              count(comment, :distinct)
+              |> filter(
+                image.first_seen_at >= ^@start_of_year and image.first_seen_at <= ^@end_of_year
+              ),
+            new_faves_count:
+              count(fave, :distinct)
+              |> filter(fave.created_at >= ^@start_of_year and fave.created_at <= ^@end_of_year),
+            new_upvotes_count:
+              count(upvote, :distinct)
+              |> filter(
+                upvote.created_at >= ^@start_of_year and upvote.created_at <= ^@end_of_year
+              ),
+            new_comments_count:
+              count(comment, :distinct)
+              |> filter(
+                comment.created_at >= ^@start_of_year and comment.created_at <= ^@end_of_year
+              )
+          },
+          order_by: [desc: selected_as(:new_images_count)]
+      )
+
+    linked_tags =
+      Enum.map(linked_tags_stats, fn stats ->
+        %{
+          tag: Enum.find(user.verified_links, &(&1.tag_id == stats.tag_id)).tag,
+          stats: stats,
+          most_faved_images:
+            Repo.all(
+              from image in Image,
+                join: tagging in Tagging,
+                on: tagging.image_id == image.id,
+                where: tagging.tag_id == ^stats.tag_id,
+                select: image,
+                order_by: [desc: image.faves_count],
+                limit: 5,
+                preload: [:sources, tags: :aliases]
+            ),
+          most_scored_images:
+            Repo.all(
+              from image in Image,
+                join: tagging in Tagging,
+                on: tagging.image_id == image.id,
+                where: tagging.tag_id == ^stats.tag_id,
+                select: image,
+                order_by: [desc: image.score],
+                limit: 5,
+                preload: [:sources, tags: :aliases]
+            ),
+          most_commented_on_images:
+            Repo.all(
+              from image in Image,
+                join: tagging in Tagging,
+                on: tagging.image_id == image.id,
+                where: tagging.tag_id == ^stats.tag_id,
+                select: image,
+                order_by: [desc: image.comments_count],
+                limit: 5,
+                preload: [:sources, tags: :aliases]
+            )
+        }
+      end)
+
     interactions =
       Interactions.user_interactions(
-        [user_random_daily_images |> Enum.map(& &1.image)],
+        (user_random_daily_images |> Enum.map(& &1.image)) ++
+          (linked_tags
+           |> Enum.map(
+             &[&1.most_faved_images, &1.most_scored_images, &1.most_commented_on_images]
+           )
+           |> List.flatten()),
         conn.assigns.current_user
       )
 
@@ -507,6 +612,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       user_top_added_tags: user_top_added_tags,
       user_top_removed_tags: user_top_removed_tags,
       user_random_daily_images: user_random_daily_images,
+      linked_tags: linked_tags,
       interactions: interactions
     )
   end
