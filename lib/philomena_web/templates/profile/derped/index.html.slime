@@ -632,64 +632,64 @@ p
 
 = if Enum.any?(@linked_tags) do
   h2 You as an Artist
-  = for %{tag: tag, stats: stats, most_faved_images: most_faved_images, most_scored_images: most_scored_images, most_commented_on_images: most_commented_on_images} <- @linked_tags do
+  = for %{tag: tag, images: images, faves: faves, upvotes: upvotes, comments: comments, most_faved_images: most_faved_images, most_scored_images: most_scored_images, most_commented_on_images: most_commented_on_images} <- @linked_tags do
     = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
     p
       ' You created
       span.stat>
-        = number_with_delimiter(stats.new_images_count)
+        = number_with_delimiter(images.new_count)
       ' images this year.
-    = increase_stats(stats.new_images_count, stats.overall_images_count)
+    = increase_stats(images.new_count, images.overall_count)
     br
     p
       ' You received a total of
       span.stat>
-        = number_with_delimiter(stats.new_faves_count)
+        = number_with_delimiter(faves.new_count)
       ' faves this year, of which
-      => stat_with_percent(stats.new_images_faves_count, stats.new_faves_count)
+      => stat_with_percent(faves.new_images_count, faves.new_count)
       | were on new images.
-    = increase_stats(stats.new_faves_count, stats.overall_faves_count)
+    = increase_stats(faves.new_count, faves.overall_count)
     p
       ' Averages per image of
       span.stat>
-        = number_with_delimiter(round(safe_div(stats.overall_faves_count, stats.overall_images_count)))
+        = number_with_delimiter(round(safe_div(faves.overall_count, images.overall_count)))
       ' overall and
       span.stat>
-        = number_with_delimiter(round(safe_div(stats.new_images_faves_count, stats.new_images_count)))
+        = number_with_delimiter(round(safe_div(faves.new_images_count, images.new_count)))
       | this year.
     br
     p
       ' You received a total of
       span.stat>
-        = number_with_delimiter(stats.new_upvotes_count)
+        = number_with_delimiter(upvotes.new_count)
       ' upvotes this year, of which
-      => stat_with_percent(stats.new_images_upvotes_count, stats.new_upvotes_count)
+      => stat_with_percent(upvotes.new_images_count, upvotes.new_count)
       | were on new images.
-    = increase_stats(stats.new_upvotes_count, stats.overall_upvotes_count)
+    = increase_stats(upvotes.new_count, upvotes.overall_count)
     p
       ' Averages per image of
       span.stat>
-        = number_with_delimiter(round(safe_div(stats.overall_upvotes_count, stats.overall_images_count)))
+        = number_with_delimiter(round(safe_div(upvotes.overall_count, images.overall_count)))
       ' overall and
       span.stat>
-        = number_with_delimiter(round(safe_div(stats.new_images_upvotes_count, stats.new_images_count)))
+        = number_with_delimiter(round(safe_div(upvotes.new_images_count, images.new_count)))
       | this year.
     br
     p
       ' You received a total of
       span.stat>
-        = number_with_delimiter(stats.new_comments_count)
+        = number_with_delimiter(comments.new_count)
       ' comments this year, of which
-      => stat_with_percent(stats.new_images_comments_count, stats.new_comments_count)
+      => stat_with_percent(comments.new_images_count, comments.new_count)
       | were on new images.
-    = increase_stats(stats.new_comments_count, stats.overall_comments_count)
+    = increase_stats(comments.new_count, comments.overall_count)
     p
       ' Averages per image of
       span.stat>
-        = number_with_delimiter(round(safe_div(stats.overall_comments_count, stats.overall_images_count)))
+        = number_with_delimiter(round(safe_div(comments.overall_count, images.overall_count)))
       ' overall and
       span.stat>
-        = number_with_delimiter(round(safe_div(stats.new_images_comments_count, stats.new_images_count)))
+        = number_with_delimiter(round(safe_div(comments.new_images_count, images.new_count)))
       | this year.
     .block
       .block__content.media-list.media-list--small
