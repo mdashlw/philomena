@@ -493,7 +493,8 @@ defmodule PhilomenaWeb.Profile.DerpedController do
                   new_images_count:
                     count()
                     |> filter(
-                      image.first_seen_at >= ^@start_of_year and
+                      fave.created_at >= ^@start_of_year and fave.created_at <= ^@end_of_year and
+                        image.first_seen_at >= ^@start_of_year and
                         image.first_seen_at <= ^@end_of_year
                     ),
                   new_count:
@@ -517,7 +518,8 @@ defmodule PhilomenaWeb.Profile.DerpedController do
                   new_images_count:
                     count()
                     |> filter(
-                      image.first_seen_at >= ^@start_of_year and
+                      vote.created_at >= ^@start_of_year and vote.created_at <= ^@end_of_year and
+                        image.first_seen_at >= ^@start_of_year and
                         image.first_seen_at <= ^@end_of_year
                     ),
                   new_count:
@@ -540,7 +542,9 @@ defmodule PhilomenaWeb.Profile.DerpedController do
                   new_images_count:
                     count()
                     |> filter(
-                      image.first_seen_at >= ^@start_of_year and
+                      comment.created_at >= ^@start_of_year and
+                        comment.created_at <= ^@end_of_year and
+                        image.first_seen_at >= ^@start_of_year and
                         image.first_seen_at <= ^@end_of_year
                     ),
                   new_count:
