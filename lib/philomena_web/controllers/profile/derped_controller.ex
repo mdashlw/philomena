@@ -459,6 +459,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
 
     linked_tags =
       user.verified_links
+      |> Enum.uniq_by(& &1.tag_id)
       |> Enum.map(fn %{tag: tag} ->
         %{
           tag: tag,
