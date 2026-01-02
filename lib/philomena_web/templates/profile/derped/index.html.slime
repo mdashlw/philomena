@@ -1,9 +1,12 @@
+elixir:
+  scope = scope(@conn)
+
 h1
   ' Derped 2025 for
   = @user.name
 p
   ' Accessible only to you. Share with others via
-  = link "this special link", to: ~p"/profiles/#{@user}/derped?token=#{@token}"
+  = link "this special link", to: ~p"/profiles/#{@user}/derped?#{Keyword.put(scope, :token, @token)}"
 
 h2 Global Statistics
 
@@ -636,18 +639,23 @@ table.table
           = rank(rank, ntile)
 
 h2 A Pony a Day
+- daily_type = Keyword.get(scope, :daily)
 p
-  ' A collection of random images you faved each day this year. Total
-  => length(@user_random_daily_faves)
+  - what = if daily_type == "votes", do: "upvoted", else: "faved"
+  ' A collection of random images you #{what} each day this year. Total
+  => length(@user_random_daily_images)
   ' days.
-  = if length(@user_random_daily_faves) == 365 do
+  = if length(@user_random_daily_images) == 365 do
     | Wow - that's every single day!
   - else
-    = if length(@user_random_daily_faves) >= 360 do
+    = if length(@user_random_daily_images) >= 360 do
       | Wow - that's almost every single day!
+p
+  - opposite_type = if daily_type == "votes", do: "faves", else: "votes"
+  = link "Switch to #{opposite_type}", to: ~p"/profiles/#{@user}/derped?#{Keyword.put(scope, :daily, opposite_type)}"
 .block
   .block__content.media-list.media-list--small
-    = for {%{image: image, created_at: date}, index} <- Enum.with_index(@user_random_daily_faves) do
+    = for {%{image: image, created_at: date}, index} <- Enum.with_index(@user_random_daily_images) do
       - style = if index == 0, do: "position: absolute;", else: ""
       .flex.flex--column style=style
         .flex__fixed

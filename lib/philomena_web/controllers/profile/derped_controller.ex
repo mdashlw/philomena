@@ -30,7 +30,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
   @start_of_year ~U[2025-01-01 00:00:00Z]
   @end_of_year ~U[2025-12-31 23:59:59Z]
 
-  def index(conn, _params) do
+  def index(conn, params) do
     user = conn.assigns.user
 
     token = share_token(user)
@@ -438,9 +438,14 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           with_ties: true
       )
 
-    user_random_daily_faves =
+    random_daily_base_query =
+      if params["daily"] == "votes",
+        do: from(v in ImageVote, where: v.up),
+        else: from(f in ImageFave)
+
+    user_random_daily_images =
       Repo.all(
-        from f in ImageFave,
+        from f in random_daily_base_query,
           join: image in assoc(f, :image),
           where: f.created_at >= ^@start_of_year and f.created_at <= ^@end_of_year,
           where: f.user_id == ^user.id,
@@ -453,7 +458,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
 
     interactions =
       Interactions.user_interactions(
-        [user_random_daily_faves |> Enum.map(& &1.image)],
+        [user_random_daily_images |> Enum.map(& &1.image)],
         conn.assigns.current_user
       )
 
@@ -501,7 +506,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       user_top_faved_ship_tags: user_top_faved_ship_tags,
       user_top_added_tags: user_top_added_tags,
       user_top_removed_tags: user_top_removed_tags,
-      user_random_daily_faves: user_random_daily_faves,
+      user_random_daily_images: user_random_daily_images,
       interactions: interactions
     )
   end
