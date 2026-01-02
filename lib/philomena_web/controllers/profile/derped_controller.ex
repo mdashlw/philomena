@@ -470,14 +470,12 @@ defmodule PhilomenaWeb.Profile.DerpedController do
                 on: tagging.image_id == image.id,
                 where: tagging.tag_id == ^tag.id,
                 where: not image.hidden_from_users,
+                where: image.first_seen_at <= ^@end_of_year,
                 select: %{
                   overall_count: count(),
                   new_count:
                     count()
-                    |> filter(
-                      image.first_seen_at >= ^@start_of_year and
-                        image.first_seen_at <= ^@end_of_year
-                    )
+                    |> filter(image.first_seen_at >= ^@start_of_year)
                 }
             ),
           faves:
@@ -488,20 +486,15 @@ defmodule PhilomenaWeb.Profile.DerpedController do
                 on: tagging.image_id == image.id,
                 where: tagging.tag_id == ^tag.id,
                 where: not image.hidden_from_users,
+                where: fave.created_at <= ^@end_of_year,
                 select: %{
                   overall_count: count(),
                   new_images_count:
                     count()
-                    |> filter(
-                      fave.created_at >= ^@start_of_year and fave.created_at <= ^@end_of_year and
-                        image.first_seen_at >= ^@start_of_year and
-                        image.first_seen_at <= ^@end_of_year
-                    ),
+                    |> filter(image.first_seen_at >= ^@start_of_year),
                   new_count:
                     count()
-                    |> filter(
-                      fave.created_at >= ^@start_of_year and fave.created_at <= ^@end_of_year
-                    )
+                    |> filter(fave.created_at >= ^@start_of_year)
                 }
             ),
           upvotes:
@@ -513,20 +506,15 @@ defmodule PhilomenaWeb.Profile.DerpedController do
                 where: tagging.tag_id == ^tag.id,
                 where: not image.hidden_from_users,
                 where: vote.up,
+                where: vote.created_at <= ^@end_of_year,
                 select: %{
                   overall_count: count(),
                   new_images_count:
                     count()
-                    |> filter(
-                      vote.created_at >= ^@start_of_year and vote.created_at <= ^@end_of_year and
-                        image.first_seen_at >= ^@start_of_year and
-                        image.first_seen_at <= ^@end_of_year
-                    ),
+                    |> filter(image.first_seen_at >= ^@start_of_year),
                   new_count:
                     count()
-                    |> filter(
-                      vote.created_at >= ^@start_of_year and vote.created_at <= ^@end_of_year
-                    )
+                    |> filter(vote.created_at >= ^@start_of_year)
                 }
             ),
           comments:
@@ -537,22 +525,15 @@ defmodule PhilomenaWeb.Profile.DerpedController do
                 on: tagging.image_id == image.id,
                 where: tagging.tag_id == ^tag.id,
                 where: not image.hidden_from_users,
+                where: comment.created_at <= ^@end_of_year,
                 select: %{
                   overall_count: count(),
                   new_images_count:
                     count()
-                    |> filter(
-                      comment.created_at >= ^@start_of_year and
-                        comment.created_at <= ^@end_of_year and
-                        image.first_seen_at >= ^@start_of_year and
-                        image.first_seen_at <= ^@end_of_year
-                    ),
+                    |> filter(image.first_seen_at >= ^@start_of_year),
                   new_count:
                     count()
-                    |> filter(
-                      comment.created_at >= ^@start_of_year and
-                        comment.created_at <= ^@end_of_year
-                    )
+                    |> filter(comment.created_at >= ^@start_of_year)
                 }
             ),
           most_faved_images:
