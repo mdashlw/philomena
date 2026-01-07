@@ -477,7 +477,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
                     count()
                     |> filter(image.first_seen_at >= ^@start_of_year)
                 }
-            ),
+            ) || %{overall_count: 0, new_count: 0},
           faves:
             Repo.one(
               from s in "derped_artist_tag_fave_stats",

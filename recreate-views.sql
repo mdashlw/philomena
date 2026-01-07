@@ -10,6 +10,8 @@ SELECT
       COUNT(*)
     FROM
       users
+    WHERE
+      created_at < '2026-01-01'
   ) AS user_count,
   (
     SELECT
@@ -25,54 +27,72 @@ SELECT
       COUNT(*)
     FROM
       images
+    WHERE
+      created_at < '2026-01-01'
   ) AS image_count,
   (
     SELECT
       COUNT(*)
     FROM
       comments
+    WHERE
+      created_at < '2026-01-01'
   ) AS comment_count,
   (
     SELECT
       COUNT(*)
     FROM
       topics
+    WHERE
+      created_at < '2026-01-01'
   ) AS topic_count,
   (
     SELECT
       COUNT(*)
     FROM
       posts
+    WHERE
+      created_at < '2026-01-01'
   ) AS post_count,
   (
     SELECT
       COUNT(*)
     FROM
       image_faves
+    WHERE
+      created_at < '2026-01-01'
   ) AS image_fave_count,
   (
     SELECT
       COUNT(*)
     FROM
       image_votes
+    WHERE
+      created_at < '2026-01-01'
   ) AS image_vote_count,
   (
     SELECT
       COUNT(*)
     FROM
       tag_changes
+    WHERE
+      created_at < '2026-01-01'
   ) AS tag_change_count,
   (
     SELECT
       COUNT(*)
     FROM
       source_changes
+    WHERE
+      created_at < '2026-01-01'
   ) AS source_change_count,
   (
     SELECT
       COUNT(*)
     FROM
       reports
+    WHERE
+      created_at < '2026-01-01'
   ) AS report_count;
 
 DROP MATERIALIZED VIEW IF EXISTS derped_global_images;
