@@ -173,30 +173,6 @@ p
 
 = increase_stats(@global_reports.count, @global_overalls.report_count)
 
-h2 Top Images
-.block
-  .block__content.media-list.media-list--small
-    = for {image, index} <- Enum.with_index(@global_top_images.faves) do
-      - style = if index == 0, do: "position: absolute;", else: ""
-      .flex.flex--column style=style
-        = render PhilomenaWeb.ImageView, "_image_box.html", image: image, size: :thumb_small, conn: @conn
-        figcaption.center
-          = "Most faved ##{index + 1}"
-  .block__content.media-list.media-list--small
-    = for {image, index} <- Enum.with_index(@global_top_images.score) do
-      - style = if index == 0, do: "position: absolute;", else: ""
-      .flex.flex--column style=style
-        = render PhilomenaWeb.ImageView, "_image_box.html", image: image, size: :thumb_small, conn: @conn
-        figcaption.center
-          = "Most scored ##{index + 1}"
-  .block__content.media-list.media-list--small
-    = for {image, index} <- Enum.with_index(@global_top_images.comments) do
-      - style = if index == 0, do: "position: absolute;", else: ""
-      .flex.flex--column style=style
-        = render PhilomenaWeb.ImageView, "_image_box.html", image: image, size: :thumb_small, conn: @conn
-        figcaption.center
-          = "Most commented-on ##{index + 1}"
-
 h2 Global Leaderboards
 
 h3 Top Tags Across New Images
