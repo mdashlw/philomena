@@ -270,6 +270,39 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           with_ties: true
       )
 
+    global_top_images = %{
+      faves:
+        Repo.all(
+          from i in Image,
+            where: not i.hidden_from_users,
+            where: i.first_seen_at >= ^@start_of_year and i.first_seen_at <= ^@end_of_year,
+            order_by: [desc: i.faves_count],
+            limit: 5,
+            with_ties: true,
+            preload: [:sources, tags: :aliases]
+        ),
+      score:
+        Repo.all(
+          from i in Image,
+            where: not i.hidden_from_users,
+            where: i.first_seen_at >= ^@start_of_year and i.first_seen_at <= ^@end_of_year,
+            order_by: [desc: i.score],
+            limit: 5,
+            with_ties: true,
+            preload: [:sources, tags: :aliases]
+        ),
+      comments:
+        Repo.all(
+          from i in Image,
+            where: not i.hidden_from_users,
+            where: i.first_seen_at >= ^@start_of_year and i.first_seen_at <= ^@end_of_year,
+            order_by: [desc: i.comments_count],
+            limit: 5,
+            with_ties: true,
+            preload: [:sources, tags: :aliases]
+        )
+    }
+
     user_visits =
       Repo.one(
         from s in "derped_user_visits",
@@ -460,9 +493,12 @@ defmodule PhilomenaWeb.Profile.DerpedController do
     linked_tags =
       user.verified_links
       |> Enum.uniq_by(& &1.tag_id)
-      |> Enum.map(fn %{tag: tag} ->
+      |> Enum.map(fn %{tag: tag} = link ->
         %{
           tag: tag,
+          is_new:
+            DateTime.after?(link.created_at, @start_of_year) and
+              DateTime.before?(link.created_at, @end_of_year),
           images:
             Repo.one(
               from image in Image,
@@ -582,6 +618,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       global_top_source_changers: global_top_source_changers,
       global_top_added_tags: global_top_added_tags,
       global_top_removed_tags: global_top_removed_tags,
+      global_top_images: global_top_images,
       user_visits: user_visits,
       user_images: user_images,
       user_comments: user_comments,
