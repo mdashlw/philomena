@@ -543,8 +543,6 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       end)
       |> Enum.sort_by(& &1.images.new_count, :desc)
 
-    dbg(linked_tags)
-
     interactions =
       Interactions.user_interactions(
         (user_random_daily_images |> Enum.map(& &1.image)) ++
