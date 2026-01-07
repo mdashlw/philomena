@@ -183,6 +183,7 @@ table.table
     tr
       th Tag
       th Images
+      th
   tbody
     = for %{tag: tag, count: count} <- @global_top_rating_taggings do
       tr
@@ -190,6 +191,9 @@ table.table
           = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
         td
           = number_with_delimiter(count)
+        td
+          = Float.round(safe_div(count, @global_images.count) * 100, 1)
+          | %
 h4 Content
 table.table
   thead
