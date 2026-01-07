@@ -480,62 +480,22 @@ defmodule PhilomenaWeb.Profile.DerpedController do
             ),
           faves:
             Repo.one(
-              from fave in ImageFave,
-                join: image in assoc(fave, :image),
-                join: tagging in Tagging,
-                on: tagging.image_id == image.id,
-                where: tagging.tag_id == ^tag.id,
-                where: not image.hidden_from_users,
-                where: fave.created_at <= ^@end_of_year,
-                select: %{
-                  overall_count: count(),
-                  new_images_count:
-                    count()
-                    |> filter(image.first_seen_at >= ^@start_of_year),
-                  new_count:
-                    count()
-                    |> filter(fave.created_at >= ^@start_of_year)
-                }
-            ),
-          upvotes:
+              from s in "derped_artist_tag_fave_stats",
+                where: s.tag_id == ^tag.id,
+                select: map(s, [:overall_count, :new_count, :new_images_count])
+            ) || %{overall_count: 0, new_count: 0, new_images_count: 0},
+          scores:
             Repo.one(
-              from vote in ImageVote,
-                join: image in assoc(vote, :image),
-                join: tagging in Tagging,
-                on: tagging.image_id == image.id,
-                where: tagging.tag_id == ^tag.id,
-                where: not image.hidden_from_users,
-                where: vote.up,
-                where: vote.created_at <= ^@end_of_year,
-                select: %{
-                  overall_count: count(),
-                  new_images_count:
-                    count()
-                    |> filter(image.first_seen_at >= ^@start_of_year),
-                  new_count:
-                    count()
-                    |> filter(vote.created_at >= ^@start_of_year)
-                }
-            ),
+              from s in "derped_artist_tag_score_stats",
+                where: s.tag_id == ^tag.id,
+                select: map(s, [:overall_count, :new_count, :new_images_count])
+            ) || %{overall_count: 0, new_count: 0, new_images_count: 0},
           comments:
             Repo.one(
-              from comment in Comment,
-                join: image in assoc(comment, :image),
-                join: tagging in Tagging,
-                on: tagging.image_id == image.id,
-                where: tagging.tag_id == ^tag.id,
-                where: not image.hidden_from_users,
-                where: comment.created_at <= ^@end_of_year,
-                select: %{
-                  overall_count: count(),
-                  new_images_count:
-                    count()
-                    |> filter(image.first_seen_at >= ^@start_of_year),
-                  new_count:
-                    count()
-                    |> filter(comment.created_at >= ^@start_of_year)
-                }
-            ),
+              from s in "derped_artist_tag_comment_stats",
+                where: s.tag_id == ^tag.id,
+                select: map(s, [:overall_count, :new_count, :new_images_count])
+            ) || %{overall_count: 0, new_count: 0, new_images_count: 0},
           most_faved_images:
             Repo.all(
               from image in Image,
@@ -582,6 +542,8 @@ defmodule PhilomenaWeb.Profile.DerpedController do
         }
       end)
       |> Enum.sort_by(& &1.images.new_count, :desc)
+
+    dbg(linked_tags)
 
     interactions =
       Interactions.user_interactions(

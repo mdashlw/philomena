@@ -633,4 +633,140 @@ GROUP BY
   t.id,
   f.user_id;
 
+DROP MATERIALIZED VIEW IF EXISTS derped_artist_tag_fave_stats;
+
+CREATE MATERIALIZED VIEW
+  derped_artist_tag_fave_stats AS
+WITH
+  derped_temp_fave_counts AS (
+    SELECT
+      images.id AS image_id,
+      COUNT(*) AS overall_count,
+      COUNT(*) FILTER (
+        WHERE
+          image_faves.created_at >= '2025-01-01'
+      ) AS new_count,
+      COUNT(*) FILTER (
+        WHERE
+          images.first_seen_at >= '2025-01-01'
+      ) AS new_images_count
+    FROM
+      images
+      INNER JOIN image_faves ON image_faves.image_id = images.id
+    WHERE
+      images.hidden_from_users IS FALSE
+      and image_faves.created_at < '2026-01-01'
+    GROUP BY
+      images.id
+  )
+SELECT
+  artist_links.tag_id,
+  SUM(overall_count)::bigint AS overall_count,
+  SUM(new_count)::bigint AS new_count,
+  SUM(new_images_count)::bigint AS new_images_count
+FROM
+  artist_links
+  INNER JOIN image_taggings ON image_taggings.tag_id = artist_links.tag_id
+  INNER JOIN derped_temp_fave_counts ON derped_temp_fave_counts.image_id = image_taggings.image_id
+WHERE
+  artist_links.aasm_state = 'verified'
+GROUP BY
+  artist_links.tag_id;
+
+DROP MATERIALIZED VIEW IF EXISTS derped_artist_tag_score_stats;
+
+CREATE MATERIALIZED VIEW
+  derped_artist_tag_score_stats AS
+WITH
+  derped_temp_score_counts AS (
+    SELECT
+      images.id AS image_id,
+      COUNT(*) FILTER (
+        WHERE
+          image_votes.up IS TRUE
+      ) - COUNT(*) FILTER (
+        WHERE
+          image_votes.up IS FALSE
+      ) AS overall_count,
+      COUNT(*) FILTER (
+        WHERE
+          image_votes.up IS TRUE
+          AND image_votes.created_at >= '2025-01-01'
+      ) - COUNT(*) FILTER (
+        WHERE
+          image_votes.up IS FALSE
+          AND image_votes.created_at >= '2025-01-01'
+      ) AS new_count,
+      COUNT(*) FILTER (
+        WHERE
+          image_votes.up IS TRUE
+          AND images.first_seen_at >= '2025-01-01'
+      ) - COUNT(*) FILTER (
+        WHERE
+          image_votes.up IS FALSE
+          AND images.first_seen_at >= '2025-01-01'
+      ) AS new_images_count
+    FROM
+      images
+      INNER JOIN image_votes ON image_votes.image_id = images.id
+    WHERE
+      images.hidden_from_users IS FALSE
+      and image_votes.created_at < '2026-01-01'
+    GROUP BY
+      images.id
+  )
+SELECT
+  artist_links.tag_id,
+  SUM(overall_count)::bigint AS overall_count,
+  SUM(new_count)::bigint AS new_count,
+  SUM(new_images_count)::bigint AS new_images_count
+FROM
+  artist_links
+  INNER JOIN image_taggings ON image_taggings.tag_id = artist_links.tag_id
+  INNER JOIN derped_temp_score_counts ON derped_temp_score_counts.image_id = image_taggings.image_id
+WHERE
+  artist_links.aasm_state = 'verified'
+GROUP BY
+  artist_links.tag_id;
+
+DROP MATERIALIZED VIEW IF EXISTS derped_artist_tag_comment_stats;
+
+CREATE MATERIALIZED VIEW
+  derped_artist_tag_comment_stats AS
+WITH
+  derped_temp_comment_counts AS (
+    SELECT
+      images.id AS image_id,
+      COUNT(*) AS overall_count,
+      COUNT(*) FILTER (
+        WHERE
+          comments.created_at >= '2025-01-01'
+      ) AS new_count,
+      COUNT(*) FILTER (
+        WHERE
+          images.first_seen_at >= '2025-01-01'
+      ) AS new_images_count
+    FROM
+      images
+      INNER JOIN comments ON comments.image_id = images.id
+    WHERE
+      images.hidden_from_users IS FALSE
+      and comments.created_at < '2026-01-01'
+    GROUP BY
+      images.id
+  )
+SELECT
+  artist_links.tag_id,
+  SUM(overall_count)::bigint AS overall_count,
+  SUM(new_count)::bigint AS new_count,
+  SUM(new_images_count)::bigint AS new_images_count
+FROM
+  artist_links
+  INNER JOIN image_taggings ON image_taggings.tag_id = artist_links.tag_id
+  INNER JOIN derped_temp_comment_counts ON derped_temp_comment_counts.image_id = image_taggings.image_id
+WHERE
+  artist_links.aasm_state = 'verified'
+GROUP BY
+  artist_links.tag_id;
+
 COMMIT;

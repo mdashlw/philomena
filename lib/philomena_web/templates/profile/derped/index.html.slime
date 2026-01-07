@@ -632,7 +632,7 @@ p
 
 = if Enum.any?(@linked_tags) do
   h2 You as an Artist
-  = for %{tag: tag, images: images, faves: faves, upvotes: upvotes, comments: comments, most_faved_images: most_faved_images, most_scored_images: most_scored_images, most_commented_on_images: most_commented_on_images} <- @linked_tags do
+  = for %{tag: tag, images: images, faves: faves, scores: scores, comments: comments, most_faved_images: most_faved_images, most_scored_images: most_scored_images, most_commented_on_images: most_commented_on_images} <- @linked_tags do
     = render PhilomenaWeb.TagView, "_tag.html", tag: tag, conn: @conn
     p
       ' You created
@@ -661,18 +661,18 @@ p
     p
       ' You received a total of
       span.stat>
-        = number_with_delimiter(upvotes.new_count)
-      ' upvotes this year, of which
-      => stat_with_percent(upvotes.new_images_count, upvotes.new_count)
+        = number_with_delimiter(scores.new_count)
+      ' score this year, of which
+      => stat_with_percent(scores.new_images_count, scores.new_count)
       | were on new images.
-    = increase_stats(upvotes.new_count, upvotes.overall_count)
+    = increase_stats(scores.new_count, scores.overall_count)
     p
       ' Averages per image of
       span.stat>
-        = number_with_delimiter(round(safe_div(upvotes.overall_count, images.overall_count)))
+        = number_with_delimiter(round(safe_div(scores.overall_count, images.overall_count)))
       ' overall and
       span.stat>
-        = number_with_delimiter(round(safe_div(upvotes.new_images_count, images.new_count)))
+        = number_with_delimiter(round(safe_div(scores.new_images_count, images.new_count)))
       | this year.
     br
     p
