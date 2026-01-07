@@ -4,6 +4,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
   alias Philomena.Users.User
   alias Philomena.Images.Image
   alias Philomena.Comments.Comment
+  alias Philomena.Forums.Forum
   alias Philomena.Topics.Topic
   alias Philomena.Posts.Post
   alias Philomena.ImageFaves.ImageFave
@@ -268,6 +269,45 @@ defmodule PhilomenaWeb.Profile.DerpedController do
           order_by: [desc: s.count, desc: t.images_count, asc: t.name],
           limit: 10,
           with_ties: true
+      )
+
+    global_most_posted_forums =
+      Repo.all(
+        from f in Forum,
+          join: t in Topic,
+          on: t.forum_id == f.id,
+          join: p in assoc(t, :posts),
+          where: f.access_level == "normal",
+          where: p.created_at >= ^@start_of_year and p.created_at <= ^@end_of_year,
+          select: %{
+            forum: f,
+            new_post_count: count() |> selected_as(:new_post_count),
+            topic_count: count(t.id, :distinct),
+            user_count: count(p.user_id, :distinct)
+          },
+          order_by: [desc: selected_as(:new_post_count)],
+          group_by: f.id,
+          limit: 10,
+          with_ties: true
+      )
+
+    global_most_posted_topics =
+      Repo.all(
+        from t in Topic,
+          join: f in assoc(t, :forum),
+          join: p in assoc(t, :posts),
+          where: f.access_level == "normal",
+          where: p.created_at >= ^@start_of_year and p.created_at <= ^@end_of_year,
+          select: %{
+            topic: t,
+            new_post_count: count() |> selected_as(:new_post_count),
+            user_count: count(p.user_id, :distinct)
+          },
+          order_by: [desc: selected_as(:new_post_count)],
+          group_by: t.id,
+          limit: 10,
+          with_ties: true,
+          preload: [:forum]
       )
 
     user_visits =
@@ -585,6 +625,8 @@ defmodule PhilomenaWeb.Profile.DerpedController do
       global_top_source_changers: global_top_source_changers,
       global_top_added_tags: global_top_added_tags,
       global_top_removed_tags: global_top_removed_tags,
+      global_most_posted_forums: global_most_posted_forums,
+      global_most_posted_topics: global_most_posted_topics,
       user_visits: user_visits,
       user_images: user_images,
       user_comments: user_comments,

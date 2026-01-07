@@ -364,6 +364,43 @@ table.table
           = number_with_delimiter(count)
         td
           = number_with_delimiter(user_count)
+          
+h3 Most Posted Forums
+table.table
+  thead
+    tr
+      th Forum
+      th Posts
+      th Across topics
+      th By users
+  tbody
+    = for %{forum: forum, new_post_count: new_post_count, topic_count: topic_count, user_count: user_count} <- @global_most_posted_forums do
+      tr
+        td
+          = link forum.name, to: ~p"/forums/#{forum}"
+        td
+          = number_with_delimiter(new_post_count)
+        td
+          = number_with_delimiter(topic_count)
+        td
+          = number_with_delimiter(user_count)
+
+h3 Most Posted Topics
+table.table
+  thead
+    tr
+      th Topic
+      th Posts
+      th By users
+  tbody
+    = for %{topic: topic, new_post_count: new_post_count, user_count: user_count} <- @global_most_posted_topics do
+      tr
+        td
+          = link topic.title, to: ~p"/forums/#{topic.forum}/topics/#{topic}"
+        td
+          = number_with_delimiter(new_post_count)
+        td
+          = number_with_delimiter(user_count)
 
 h2 Your Statistics
 
