@@ -101,7 +101,10 @@ CREATE MATERIALIZED VIEW
   derped_global_images AS
 SELECT
   COUNT(*),
-  COUNT(DISTINCT user_id) AS user_count
+  COUNT(DISTINCT user_id) AS user_count,
+  AVG(faves_count)::double precision AS avg_faves_count,
+  AVG(score)::double precision AS avg_score,
+  AVG(comments_count)::double precision AS avg_comments_count
 FROM
   images
 WHERE
@@ -116,11 +119,16 @@ SELECT
   COUNT(*),
   COUNT(DISTINCT comments.user_id) AS user_count,
   COUNT(DISTINCT images.id) AS image_count,
+  COUNT(*) FILTER (
+    WHERE
+      images.created_at >= '2025-01-01'
+      AND images.created_at < '2026-01-01'
+  ) AS new_images_count,
   COUNT(DISTINCT images.id) FILTER (
     WHERE
       images.created_at >= '2025-01-01'
       AND images.created_at < '2026-01-01'
-  ) AS new_image_count
+  ) AS image_new_count
 FROM
   comments
   INNER JOIN images ON images.id = comments.image_id

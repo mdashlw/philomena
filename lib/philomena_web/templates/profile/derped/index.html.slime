@@ -30,6 +30,18 @@ p
 
 = increase_stats(@global_images.count, @global_overalls.image_count)
 
+p
+  ' Averaging
+  span.stat>
+    = Float.round(@global_images.avg_faves_count, 1)
+  ' faves,
+  span.stat>
+    = Float.round(@global_images.avg_score, 1)
+  ' score, and
+  span.stat>
+    = Float.round(@global_images.avg_comments_count, 1)
+  ' comments per image.
+
 h3 Comments
 p
   ' A total of
@@ -38,11 +50,16 @@ p
   ' new comments were posted this year, by
   span.stat>
     = number_with_delimiter(@global_comments.user_count)
-  ' users, across
+  ' users, of which
+  => stat_with_percent(@global_comments.new_images_count, @global_comments.count)
+  | were on new images.
+
+p
+  ' Across
   span.stat>
     = number_with_delimiter(@global_comments.image_count)
   ' images, of which
-  => stat_with_percent(@global_comments.new_image_count, @global_comments.image_count)
+  => stat_with_percent(@global_comments.image_new_count, @global_comments.image_count)
   | were new this year.
 
 = increase_stats(@global_comments.count, @global_overalls.comment_count)

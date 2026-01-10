@@ -59,13 +59,13 @@ defmodule PhilomenaWeb.Profile.DerpedController do
     global_images =
       Repo.one!(
         from s in "derped_global_images",
-          select: map(s, [:count, :user_count])
+          select: map(s, [:count, :user_count, :avg_faves_count, :avg_score, :avg_comments_count])
       )
 
     global_comments =
       Repo.one!(
         from s in "derped_global_comments",
-          select: map(s, [:count, :user_count, :image_count, :new_image_count])
+          select: map(s, [:count, :user_count, :image_count, :new_images_count, :image_new_count])
       )
 
     global_topics =
