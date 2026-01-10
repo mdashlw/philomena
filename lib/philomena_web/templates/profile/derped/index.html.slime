@@ -23,10 +23,13 @@ p
   ' A total of
   span.stat>
     = number_with_delimiter(@global_images.count)
-  ' new images were uploaded this year, by
+  ' new images were uploaded this year.
+
+p
+  ' By
   span.stat>
     = number_with_delimiter(@global_images.user_count)
-  | users.
+  ' users.
 
 = increase_stats(@global_images.count, @global_overalls.image_count)
 
@@ -47,10 +50,7 @@ p
   ' A total of
   span.stat>
     = number_with_delimiter(@global_comments.count)
-  ' new comments were posted this year, by
-  span.stat>
-    = number_with_delimiter(@global_comments.user_count)
-  ' users, of which
+  ' new comments were posted this year, of which
   => stat_with_percent(@global_comments.new_images_count, @global_comments.count)
   | were on new images.
 
@@ -62,6 +62,12 @@ p
   => stat_with_percent(@global_comments.image_new_count, @global_comments.image_count)
   | were new this year.
 
+p
+  ' By
+  span.stat>
+    = number_with_delimiter(@global_comments.user_count)
+  ' users.
+
 = increase_stats(@global_comments.count, @global_overalls.comment_count)
 
 h3 Topics
@@ -69,27 +75,44 @@ p
   ' A total of
   span.stat>
     = number_with_delimiter(@global_topics.count)
-  ' new topics were created this year, by
+  ' new topics were created this year.
+
+p
+  ' By
   span.stat>
     = number_with_delimiter(@global_topics.user_count)
   | users.
 
 = increase_stats(@global_topics.count, @global_overalls.topic_count)
 
+p
+  ' Averaging
+  span.stat>
+    = Float.round(@global_topics.avg_post_count, 1)
+  ' posts per topic.
+
 h3 Posts
 p
   ' A total of
   span.stat>
     = number_with_delimiter(@global_posts.count)
-  ' new posts were created this year, by
-  span.stat>
-    = number_with_delimiter(@global_posts.user_count)
-  ' users, across
+  ' new posts were created this year, of which
+  => stat_with_percent(@global_posts.new_topics_count, @global_posts.count)
+  | were on new topics.
+
+p
+  ' Across
   span.stat>
     = number_with_delimiter(@global_posts.topic_count)
   ' topics, of which
-  => stat_with_percent(@global_posts.new_topic_count, @global_posts.topic_count)
+  => stat_with_percent(@global_posts.topic_new_count, @global_posts.topic_count)
   | were new this year.
+
+p
+  ' By
+  span.stat>
+    = number_with_delimiter(@global_posts.user_count)
+  ' users.
 
 = increase_stats(@global_posts.count, @global_overalls.post_count)
 

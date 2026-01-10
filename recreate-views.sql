@@ -119,16 +119,16 @@ SELECT
   COUNT(*),
   COUNT(DISTINCT comments.user_id) AS user_count,
   COUNT(DISTINCT images.id) AS image_count,
-  COUNT(*) FILTER (
-    WHERE
-      images.created_at >= '2025-01-01'
-      AND images.created_at < '2026-01-01'
-  ) AS new_images_count,
   COUNT(DISTINCT images.id) FILTER (
     WHERE
       images.created_at >= '2025-01-01'
       AND images.created_at < '2026-01-01'
-  ) AS image_new_count
+  ) AS image_new_count,
+  COUNT(*) FILTER (
+    WHERE
+      images.created_at >= '2025-01-01'
+      AND images.created_at < '2026-01-01'
+  ) AS new_images_count
 FROM
   comments
   INNER JOIN images ON images.id = comments.image_id
@@ -142,7 +142,8 @@ CREATE MATERIALIZED VIEW
   derped_global_topics AS
 SELECT
   COUNT(*),
-  COUNT(DISTINCT user_id) AS user_count
+  COUNT(DISTINCT user_id) AS user_count,
+  AVG(post_count)::double precision AS avg_post_count
 FROM
   topics
 WHERE
@@ -161,7 +162,12 @@ SELECT
     WHERE
       topics.created_at >= '2025-01-01'
       AND topics.created_at < '2026-01-01'
-  ) AS new_topic_count
+  ) AS topic_new_count,
+  COUNT(*) FILTER (
+    WHERE
+      topics.created_at >= '2025-01-01'
+      AND topics.created_at < '2026-01-01'
+  ) AS new_topics_count
 FROM
   posts
   INNER JOIN topics ON topics.id = posts.topic_id
