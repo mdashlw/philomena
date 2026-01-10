@@ -175,16 +175,23 @@ p
   ' A total of
   span.stat>
     = number_with_delimiter(@global_tag_changes.count)
-  ' new tag changes were made this year, by
-  span.stat>
-    = number_with_delimiter(@global_tag_changes.user_count)
-  ' users, affecting
+  ' new tag changes were made this year, of which
+  => stat_with_percent(@global_tag_changes.new_images_count, @global_tag_changes.count)
+  | were on new images.
+
+p
+  ' Affecting
   span.stat>
     = number_with_delimiter(@global_tag_changes.image_count)
   ' images, of which
-  => stat_with_percent(@global_tag_changes.new_image_count, @global_tag_changes.image_count)
+  => stat_with_percent(@global_tag_changes.image_new_count, @global_tag_changes.image_count)
   | were new this year.
 
+p
+  ' By
+  span.stat>
+    = number_with_delimiter(@global_tag_changes.user_count)
+  ' users.
 p
   ' Involving
   span.stat>
@@ -205,15 +212,23 @@ p
   ' A total of
   span.stat>
     = number_with_delimiter(@global_source_changes.count)
-  ' new source changes were made this year, by
-  span.stat>
-    = number_with_delimiter(@global_source_changes.user_count)
-  ' users, affecting
+  ' new source changes were made this year, of which
+  => stat_with_percent(@global_source_changes.new_images_count, @global_source_changes.count)
+  | were on new images.
+
+p
+  ' Affecting
   span.stat>
     = number_with_delimiter(@global_source_changes.image_count)
   ' images, of which
-  => stat_with_percent(@global_source_changes.new_image_count, @global_source_changes.image_count)
+  => stat_with_percent(@global_source_changes.image_new_count, @global_source_changes.image_count)
   | were new this year.
+
+p
+  ' By
+  span.stat>
+    = number_with_delimiter(@global_source_changes.user_count)
+  ' users.
 
 = increase_stats(@global_source_changes.count, @global_overalls.source_change_count)
 

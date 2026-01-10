@@ -234,14 +234,19 @@ DROP MATERIALIZED VIEW IF EXISTS derped_global_tag_changes;
 CREATE MATERIALIZED VIEW
   derped_global_tag_changes AS
 SELECT
-  COUNT(tag_changes.id),
+  COUNT(*),
   COUNT(DISTINCT tag_changes.user_id) AS user_count,
   COUNT(DISTINCT images.id) AS image_count,
   COUNT(DISTINCT images.id) FILTER (
     WHERE
       images.created_at >= '2025-01-01'
       AND images.created_at < '2026-01-01'
-  ) AS new_image_count
+  ) AS image_new_count,
+  COUNT(*) FILTER (
+    WHERE
+      images.created_at >= '2025-01-01'
+      AND images.created_at < '2026-01-01'
+  ) AS new_images_count
 FROM
   tag_changes
   INNER JOIN images ON images.id = tag_changes.image_id
@@ -283,7 +288,12 @@ SELECT
     WHERE
       images.created_at >= '2025-01-01'
       AND images.created_at < '2026-01-01'
-  ) AS new_image_count
+  ) AS image_new_count,
+  COUNT(*) FILTER (
+    WHERE
+      images.created_at >= '2025-01-01'
+      AND images.created_at < '2026-01-01'
+  ) AS new_images_count
 FROM
   source_changes
   INNER JOIN images ON images.id = source_changes.image_id
