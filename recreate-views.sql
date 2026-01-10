@@ -187,7 +187,12 @@ SELECT
     WHERE
       images.created_at >= '2025-01-01'
       AND images.created_at < '2026-01-01'
-  ) AS new_image_count
+  ) AS image_new_count,
+  COUNT(*) FILTER (
+    WHERE
+      images.created_at >= '2025-01-01'
+      AND images.created_at < '2026-01-01'
+  ) AS new_images_count
 FROM
   image_faves
   INNER JOIN images ON images.id = image_faves.image_id
@@ -205,17 +210,18 @@ SELECT
     WHERE
       up
   ) AS up_count,
-  COUNT(*) FILTER (
-    WHERE
-      NOT up
-  ) AS down_count,
   COUNT(DISTINCT image_votes.user_id) AS user_count,
   COUNT(DISTINCT images.id) AS image_count,
   COUNT(DISTINCT images.id) FILTER (
     WHERE
       images.created_at >= '2025-01-01'
       AND images.created_at < '2026-01-01'
-  ) AS new_image_count
+  ) AS image_new_count,
+  COUNT(*) FILTER (
+    WHERE
+      images.created_at >= '2025-01-01'
+      AND images.created_at < '2026-01-01'
+  ) AS new_images_total_count
 FROM
   image_votes
   INNER JOIN images ON images.id = image_votes.image_id

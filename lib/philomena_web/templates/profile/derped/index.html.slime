@@ -121,15 +121,23 @@ p
   ' A total of
   span.stat>
     = number_with_delimiter(@global_faves.count)
-  ' new image faves were added this year, by
-  span.stat>
-    = number_with_delimiter(@global_faves.user_count)
-  ' users, across
+  ' new image faves were added this year, of which
+  => stat_with_percent(@global_faves.new_images_count, @global_faves.count)
+  | were on new images.
+
+p
+  ' Across
   span.stat>
     = number_with_delimiter(@global_faves.image_count)
   ' images, of which
-  => stat_with_percent(@global_faves.new_image_count, @global_faves.image_count)
+  => stat_with_percent(@global_faves.image_new_count, @global_faves.image_count)
   | were new this year.
+
+p
+  ' By
+  span.stat>
+    = number_with_delimiter(@global_faves.user_count)
+  ' users.
 
 = increase_stats(@global_faves.count, @global_overalls.image_fave_count)
 
@@ -142,15 +150,23 @@ p
   span.stat>
     = Float.round(safe_div(@global_votes.up_count, @global_votes.total_count) * 100, 1)
     | %
-  ' were upvotes, by
-  span.stat>
-    = number_with_delimiter(@global_votes.user_count)
-  ' users, across
+  ' were upvotes, and of which
+  => stat_with_percent(@global_votes.new_images_total_count, @global_votes.total_count)
+  | were on new images.
+
+p
+  ' Across
   span.stat>
     = number_with_delimiter(@global_votes.image_count)
   ' images, of which
-  => stat_with_percent(@global_votes.new_image_count, @global_votes.image_count)
+  => stat_with_percent(@global_votes.image_new_count, @global_votes.image_count)
   | were new this year.
+
+p
+  ' By
+  span.stat>
+    = number_with_delimiter(@global_votes.user_count)
+  ' users.
 
 = increase_stats(@global_votes.total_count, @global_overalls.image_vote_count)
 

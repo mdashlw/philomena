@@ -83,7 +83,7 @@ defmodule PhilomenaWeb.Profile.DerpedController do
     global_faves =
       Repo.one!(
         from s in "derped_global_faves",
-          select: map(s, [:count, :user_count, :image_count, :new_image_count])
+          select: map(s, [:count, :user_count, :image_count, :image_new_count, :new_images_count])
       )
 
     global_votes =
@@ -93,10 +93,10 @@ defmodule PhilomenaWeb.Profile.DerpedController do
             map(s, [
               :total_count,
               :up_count,
-              :down_count,
               :user_count,
               :image_count,
-              :new_image_count
+              :image_new_count,
+              :new_images_total_count
             ])
       )
 
