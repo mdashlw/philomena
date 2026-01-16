@@ -9,14 +9,34 @@ defmodule PhilomenaWeb.PaginationView do
     page.page_number == page.total_pages
   end
 
-  def page_path(route, params, number) do
-    route.([{:page, number} | params])
+  def page_path(page, route, params, number) do
+    rel = number - page.page_number
+
+    if rel == 1 do
+      route.(Keyword.merge(params, page: number, cursor: cursor(page, rel)))
+    else
+      route.(Keyword.merge(params, page: number, cursor: cursor(page, rel), rel: rel))
+    end
   end
 
-  def first_page_path(_page, route, params), do: page_path(route, params, 1)
-  def prev_page_path(page, route, params), do: page_path(route, params, page.page_number - 1)
-  def next_page_path(page, route, params), do: page_path(route, params, page.page_number + 1)
-  def last_page_path(page, route, params), do: page_path(route, params, page.total_pages)
+  defp cursor(%{entries: []}, _rel), do: nil
+
+  defp cursor(%{entries: entries}, rel) when rel > 0, do: hit_sort(List.last(entries))
+  defp cursor(%{entries: entries}, rel) when rel < 0, do: hit_sort(List.first(entries))
+  defp cursor(_page, _rel), do: nil
+
+  defp hit_sort({_, hit}), do: hit["sort"]
+  defp hit_sort(_entry), do: nil
+
+  def first_page_path(page, route, params), do: page_path(page, route, params, 1)
+
+  def prev_page_path(page, route, params),
+    do: page_path(page, route, params, page.page_number - 1)
+
+  def next_page_path(page, route, params),
+    do: page_path(page, route, params, page.page_number + 1)
+
+  def last_page_path(page, route, params), do: page_path(page, route, params, page.total_pages)
 
   def left_gap?(page) do
     page.page_number >= 7

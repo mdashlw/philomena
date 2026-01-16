@@ -11,12 +11,12 @@
         ' …
 
     = for number <- left_page_numbers(@page) do
-      = link(number, to: page_path(@route, params, number))
+      = link(number, to: page_path(@page, @route, params, number))
 
     span.page-current = @page.page_number
 
     = for number <- right_page_numbers(@page) do
-      = link(number, to: page_path(@route, params, number))
+      = link(number, to: page_path(@page, @route, params, number))
 
     = if right_gap?(@page) do
       span.page.gap
@@ -45,12 +45,12 @@
             ' …
 
         = for number <- left_page_numbers(@page) do
-          = link(number, to: page_path(@route, params, number))
+          = link(number, to: page_path(@page, @route, params, number))
 
         span.page-current.header__span = @page.page_number
 
         = for number <- right_page_numbers(@page) do
-          = link(number, to: page_path(@route, params, number))
+          = link(number, to: page_path(@page, @route, params, number))
 
         = if right_gap?(@page) do
           span.page.gap.header__span

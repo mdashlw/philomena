@@ -57,11 +57,15 @@ defmodule PhilomenaQuery.Search do
   @type search_definition :: %{
           module: schema_module(),
           body: query_body(),
+          cursor: [String.t()],
+          rel: integer(),
           page_number: integer(),
           page_size: integer()
         }
 
   @type pagination_params :: %{
+          optional(:cursor) => [String.t()],
+          optional(:rel) => integer(),
           optional(:page_number) => integer(),
           optional(:page_size) => integer()
         }
@@ -392,6 +396,8 @@ defmodule PhilomenaQuery.Search do
   def search(module, query_body) do
     index = @policy.index_for(module)
 
+    dbg(query_body)
+
     {:ok, %{body: results, status: 200}} =
       Api.search(@policy.opensearch_url(), index.index_name(), query_body)
 
@@ -466,29 +472,75 @@ defmodule PhilomenaQuery.Search do
   @spec search_definition(schema_module(), query_body(), pagination_params()) ::
           search_definition()
   def search_definition(module, search_query, pagination_params \\ %{}) do
+    cursor = pagination_params[:cursor]
+    rel = pagination_params[:rel]
     page_number = pagination_params[:page_number] || 1
     page_size = pagination_params[:page_size] || 25
 
     search_query =
       Map.merge(search_query, %{
-        from: (page_number - 1) * page_size,
         size: page_size,
         _source: false,
         track_total_hits: true
       })
 
+    search_query =
+      if not is_nil(cursor) do
+        Map.merge(search_query, %{search_after: cursor})
+      else
+        Map.merge(search_query, %{from: (page_number - 1) * page_size})
+      end
+
+    search_query =
+      if not is_nil(rel) and rel < 0 do
+        update_in(search_query.sort, &reverse_sort/1)
+      else
+        search_query
+      end
+
+    search_query =
+      if not is_nil(rel) and abs(rel) > 1 do
+        update_in(search_query.size, &(&1 * abs(rel)))
+      else
+        search_query
+      end
+
     %{
       module: module,
       body: search_query,
+      cursor: cursor,
+      rel: rel,
       page_number: page_number,
       page_size: page_size
     }
+  end
+
+  defp reverse_sort(sorts) do
+    order = %{"asc" => "desc", "desc" => "asc"}
+
+    sorts
+    |> Enum.flat_map(&Enum.to_list/1)
+    |> Enum.map(fn {field, direction} -> %{field => order[direction]} end)
   end
 
   defp process_results(results, definition) do
     time = results["took"]
     count = results["hits"]["total"]["value"]
     entries = Enum.map(results["hits"]["hits"], &{String.to_integer(&1["_id"]), &1})
+
+    entries =
+      if not is_nil(definition.rel) and abs(definition.rel) > 1 do
+        Enum.take(entries, -definition.page_size)
+      else
+        entries
+      end
+
+    entries =
+      if not is_nil(definition.rel) and definition.rel < 0 do
+        Enum.reverse(entries)
+      else
+        entries
+      end
 
     Logger.debug("[Search] Query took #{time}ms")
     Logger.debug("[Search] #{JSON.encode!(definition.body)}")

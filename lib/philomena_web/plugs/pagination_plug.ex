@@ -10,17 +10,40 @@ defmodule PhilomenaWeb.PaginationPlug do
     user = conn.assigns.current_user
     params = conn.params
 
+    cursor = get_cursor(params)
+    rel = get_rel(params)
     page_size = get_page_size(params)
     page_number = get_page_number(params)
     image_page_size = page_size || image_page_size(user)
     comment_page_size = page_size || comment_page_size(user)
 
     conn
-    |> assign(:pagination, %{page_number: page_number, page_size: page_size || 25})
-    |> assign(:image_pagination, %{page_number: page_number, page_size: image_page_size})
+    |> assign(:pagination, %{
+      cursor: cursor,
+      rel: rel,
+      page_number: page_number,
+      page_size: page_size || 25
+    })
+    |> assign(:image_pagination, %{
+      cursor: cursor,
+      rel: rel,
+      page_number: page_number,
+      page_size: image_page_size
+    })
     |> assign(:scrivener, page: page_number, page_size: page_size || 25)
     |> assign(:comment_scrivener, page: page_number, page_size: comment_page_size)
   end
+
+  defp get_cursor(%{"cursor" => cursor}), do: cursor
+  defp get_cursor(_params), do: nil
+
+  defp get_rel(%{"rel" => rel}) do
+    rel
+    |> to_integer()
+    |> Kernel.||(1)
+  end
+
+  defp get_rel(_params), do: nil
 
   defp get_page_number(%{"page" => page}) do
     page
@@ -49,7 +72,7 @@ defmodule PhilomenaWeb.PaginationPlug do
   end
 
   defp image_page_size(%{images_per_page: x}), do: x
-  defp image_page_size(_user), do: 15
+  defp image_page_size(_user), do: 1
 
   defp comment_page_size(%{comments_per_page: x}), do: x
   defp comment_page_size(_user), do: 25

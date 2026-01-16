@@ -13,7 +13,7 @@ defmodule PhilomenaWeb.SearchController do
     case ImageLoader.search_string(conn, params["q"]) do
       {:ok, {images, tags}} ->
         images =
-          search_function(custom_ordering?(conn)).(
+          Search.search_records_with_hits(
             images,
             preload(Image, [:sources, tags: :aliases])
           )
@@ -40,10 +40,4 @@ defmodule PhilomenaWeb.SearchController do
         )
     end
   end
-
-  defp search_function(true), do: &Search.search_records_with_hits/2
-  defp search_function(_custom), do: &Search.search_records/2
-
-  defp custom_ordering?(%{params: %{"sf" => sf}}) when sf not in ~W(id first_seen_at), do: true
-  defp custom_ordering?(_conn), do: false
 end
