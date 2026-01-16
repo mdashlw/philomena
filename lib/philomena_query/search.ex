@@ -485,14 +485,14 @@ defmodule PhilomenaQuery.Search do
       })
 
     search_query =
-      if not is_nil(cursor) do
-        Map.merge(search_query, %{search_after: cursor})
-      else
-        Map.merge(search_query, %{from: (page_number - 1) * page_size})
+      cond do
+        not is_nil(cursor) -> Map.merge(search_query, %{search_after: cursor})
+        rel == 1 -> Map.merge(search_query, %{from: 0})
+        true -> Map.merge(search_query, %{from: (page_number - 1) * page_size})
       end
 
     search_query =
-      if not is_nil(rel) and rel < 0 do
+      if not is_nil(rel) and (rel < 0 or (is_nil(cursor) and rel == 1)) do
         update_in(search_query.sort, &reverse_sort/1)
       else
         search_query
@@ -536,7 +536,8 @@ defmodule PhilomenaQuery.Search do
       end
 
     entries =
-      if not is_nil(definition.rel) and definition.rel < 0 do
+      if not is_nil(definition.rel) and
+           (definition.rel < 0 or (is_nil(definition.cursor) and definition.rel == 1)) do
         Enum.reverse(entries)
       else
         entries

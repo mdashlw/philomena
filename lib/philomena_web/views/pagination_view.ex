@@ -10,12 +10,23 @@ defmodule PhilomenaWeb.PaginationView do
   end
 
   def page_path(page, route, params, number) do
-    rel = number - page.page_number
+    total_pages = page.total_pages
 
-    if rel == 1 do
-      route.(Keyword.merge(params, page: number, cursor: cursor(page, rel)))
-    else
-      route.(Keyword.merge(params, page: number, cursor: cursor(page, rel), rel: rel))
+    case number do
+      1 ->
+        route.(Keyword.merge(params, page: number))
+
+      ^total_pages ->
+        route.(Keyword.merge(params, page: number, rel: 1))
+
+      _ ->
+        rel = number - page.page_number
+
+        if rel == 1 do
+          route.(Keyword.merge(params, page: number, cursor: cursor(page, rel)))
+        else
+          route.(Keyword.merge(params, page: number, cursor: cursor(page, rel), rel: rel))
+        end
     end
   end
 
