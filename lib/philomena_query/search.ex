@@ -528,7 +528,11 @@ defmodule PhilomenaQuery.Search do
 
     entries =
       if not is_nil(definition.rel) and abs(definition.rel) > 1 do
-        Enum.take(entries, -definition.page_size)
+        expected_size =
+          min(definition.page_number * definition.page_size, count) -
+            max((definition.page_number - 1) * definition.page_size, 0)
+
+        Enum.take(entries, -expected_size)
       else
         entries
       end
