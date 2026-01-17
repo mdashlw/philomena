@@ -527,13 +527,19 @@ defmodule PhilomenaQuery.Search do
     entries = Enum.map(results["hits"]["hits"], &{String.to_integer(&1["_id"]), &1})
 
     entries =
-      if not is_nil(definition.rel) and
-           (abs(definition.rel) > 1 or (is_nil(definition.cursor) and definition.rel == 1)) do
+      if not is_nil(definition.rel) and abs(definition.rel) > 1 do
+        Enum.take(entries, -definition.page_size)
+      else
+        entries
+      end
+
+    entries =
+      if is_nil(definition.cursor) and definition.rel == 1 do
         expected_size =
           min(definition.page_number * definition.page_size, count) -
             max((definition.page_number - 1) * definition.page_size, 0)
 
-        Enum.take(entries, -expected_size)
+        Enum.take(entries, expected_size)
       else
         entries
       end
