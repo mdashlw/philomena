@@ -154,7 +154,7 @@ defmodule PhilomenaWeb.ActivityController do
 
   defp multi_search(images, top_scoring, comments, nil) do
     responses =
-      Search.msearch_records(
+      Search.msearch_records_with_hits(
         [images, top_scoring, comments],
         [
           preload(Image, [:sources, tags: :aliases]),
@@ -167,7 +167,7 @@ defmodule PhilomenaWeb.ActivityController do
   end
 
   defp multi_search(images, top_scoring, comments, watched) do
-    Search.msearch_records(
+    Search.msearch_records_with_hits(
       [images, top_scoring, comments, watched],
       [
         preload(Image, [:sources, tags: :aliases]),

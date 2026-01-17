@@ -42,7 +42,7 @@ defmodule PhilomenaWeb.ImageController do
   def index(conn, _params) do
     {images, _tags} = ImageLoader.default_query(conn)
 
-    images = Search.search_records(images, preload(Image, [:sources, tags: :aliases]))
+    images = Search.search_records_with_hits(images, preload(Image, [:sources, tags: :aliases]))
 
     interactions = Interactions.user_interactions(images, conn.assigns.current_user)
 

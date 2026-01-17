@@ -396,8 +396,6 @@ defmodule PhilomenaQuery.Search do
   def search(module, query_body) do
     index = @policy.index_for(module)
 
-    dbg(query_body)
-
     {:ok, %{body: results, status: 200}} =
       Api.search(@policy.opensearch_url(), index.index_name(), query_body)
 
