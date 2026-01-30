@@ -12,6 +12,9 @@ defmodule PhilomenaMedia.Processors.Jpeg do
   @exit_success 0
   @exit_warning 2
 
+  # Lazy-loaded sRGB profile for comparison
+  @srgb_profile_path Path.join(File.cwd!(), "priv/icc/sRGB.icc")
+
   @spec versions(Processors.version_list()) :: [Processors.version_filename()]
   def versions(sizes) do
     Enum.map(sizes, fn {name, _} -> "#{name}.jpg" end)
@@ -45,10 +48,68 @@ defmodule PhilomenaMedia.Processors.Jpeg do
     with {output, 0} <-
            Remote.cmd("magick", ["identify", "-format", "%[orientation]\t%[profile:icc]", file]),
          [orientation, profile] <- String.split(output, "\t") do
-      orientation not in ["Undefined", "TopLeft"] or profile != ""
+      needs_orientation_fix = orientation not in ["Undefined", "TopLeft"]
+
+      # If no profile exists, no color conversion needed
+      # If profile exists but is sRGB, we can strip it without re-encoding
+      needs_color_conversion = profile != "" and not is_srgb_profile?(file)
+
+      needs_orientation_fix or needs_color_conversion
     else
       _ ->
         true
+    end
+  end
+
+  # Check if the embedded ICC profile is sRGB by comparing with our reference profile
+  # or by checking the profile description
+  defp is_srgb_profile?(file) do
+    # First, try to match the profile by byte comparison with our sRGB profile
+    case extract_icc_profile(file) do
+      {:ok, embedded_profile} ->
+        case File.read(@srgb_profile_path) do
+          {:ok, reference_profile} ->
+            if embedded_profile == reference_profile do
+              true
+            else
+              # Fallback: check if profile description contains "sRGB"
+              profile_description_is_srgb?(file)
+            end
+
+          {:error, _} ->
+            # Can't read reference profile, fall back to description check
+            profile_description_is_srgb?(file)
+        end
+
+      :error ->
+        # Can't extract profile, fall back to description check
+        profile_description_is_srgb?(file)
+    end
+  end
+
+  # Extract the raw ICC profile bytes from a JPEG file
+  defp extract_icc_profile(file) do
+    # Use ImageMagick to extract the ICC profile to stdout
+    # The "icc:-" output writes the raw profile bytes to stdout
+    case Remote.cmd("magick", [file, "icc:-"]) do
+      {profile_data, 0} when byte_size(profile_data) > 0 ->
+        {:ok, profile_data}
+
+      _ ->
+        :error
+    end
+  end
+
+  # Check if the ICC profile description indicates sRGB
+  defp profile_description_is_srgb?(file) do
+    case Remote.cmd("magick", ["identify", "-format", "%[icc:description]", file]) do
+      {description, 0} ->
+        description
+        |> String.downcase()
+        |> String.contains?("srgb")
+
+      _ ->
+        false
     end
   end
 
@@ -108,7 +169,7 @@ defmodule PhilomenaMedia.Processors.Jpeg do
   end
 
   defp srgb_profile do
-    Path.join(File.cwd!(), "priv/icc/sRGB.icc")
+    @srgb_profile_path
   end
 
   defp validate_return({_output, ret}) when ret in [@exit_success, @exit_warning] do
