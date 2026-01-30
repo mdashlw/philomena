@@ -18,14 +18,25 @@ defmodule PhilomenaMedia.Processors.Png do
   def process(analysis, file, versions) do
     animated? = analysis.animated?
 
-    {:ok, intensities} = Intensities.file(file)
+    # For non-animated PNGs, strip ICC profile and convert to sRGB if needed
+    # Skip for animated PNGs since ImageMagick may not handle them well
+    {working_file, replace_original} =
+      if animated? do
+        {file, []}
+      else
+        stripped = strip(file)
+        {stripped, [replace_original: stripped]}
+      end
 
-    scaled = Enum.flat_map(versions, &scale(file, animated?, &1))
+    {:ok, intensities} = Intensities.file(working_file)
 
-    [
-      intensities: intensities,
-      thumbnails: scaled
-    ]
+    scaled = Enum.flat_map(versions, &scale(working_file, animated?, &1))
+
+    replace_original ++
+      [
+        intensities: intensities,
+        thumbnails: scaled
+      ]
   end
 
   @spec post_process(Result.t(), Path.t()) :: Processors.edit_script()
@@ -44,6 +55,38 @@ defmodule PhilomenaMedia.Processors.Png do
     intensities
   end
 
+  defp has_icc_profile?(file) do
+    case Remote.cmd("magick", ["identify", "-format", "%[profile:icc]", file]) do
+      {output, 0} ->
+        String.trim(output) != ""
+
+      _ ->
+        # Assume no profile if we can't check
+        false
+    end
+  end
+
+  defp strip(file) do
+    stripped = Briefly.create!(extname: ".png")
+
+    if has_icc_profile?(file) do
+      # Convert ICC profile to sRGB and strip metadata
+      {_output, 0} =
+        Remote.cmd("magick", [
+          file,
+          "-profile",
+          srgb_profile(),
+          "-strip",
+          stripped
+        ])
+    else
+      # No ICC profile, just copy the file as-is
+      File.cp!(file, stripped)
+    end
+
+    stripped
+  end
+
   # Sobelow misidentifies removing the .bak file
   # sobelow_skip ["Traversal.FileModule"]
   defp optimize(file) do
@@ -56,6 +99,10 @@ defmodule PhilomenaMedia.Processors.Png do
     File.rm(optimized <> ".bak")
 
     optimized
+  end
+
+  defp srgb_profile do
+    Path.join(File.cwd!(), "priv/icc/sRGB.icc")
   end
 
   defp scale(file, animated?, {thumb_name, {width, height}}) do
