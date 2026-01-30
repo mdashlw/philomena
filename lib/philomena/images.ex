@@ -34,6 +34,7 @@ defmodule Philomena.Images do
   alias Philomena.Interactions
   alias Philomena.Reports
   alias Philomena.Comments
+  alias Philomena.Galleries
   alias Philomena.Galleries.Gallery
   alias Philomena.Galleries.Interaction
   alias Philomena.Users.User
@@ -870,9 +871,15 @@ defmodule Philomena.Images do
     duplicate_of_image =
       Repo.preload(duplicate_of_image, [:user, :intensity, :sources, tags: :aliases])
 
+    # Migrate gallery interactions before hide_image_multi deletes them
+    multi_with_gallery_migration =
+      Multi.run(multi, :migrate_gallery_interactions, fn _, %{} ->
+        Galleries.migrate_gallery_interactions(image, duplicate_of_image)
+      end)
+
     image
     |> Image.merge_changeset(duplicate_of_image)
-    |> hide_image_multi(image, user, multi)
+    |> hide_image_multi(image, user, multi_with_gallery_migration)
     |> Multi.run(:first_seen_at, fn _, %{} ->
       update_first_seen_at(
         duplicate_of_image,

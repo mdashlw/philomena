@@ -436,6 +436,79 @@ defmodule Philomena.Galleries do
   defp position_order(_gallery), do: [desc: :position]
 
   @doc """
+  Migrates gallery interactions from one image to another.
+
+  This function is used during image merging to transfer gallery memberships
+  from the source image to the target image. For each gallery containing the
+  source image, the target image will be added at the same position (if not
+  already present in that gallery).
+
+  Returns `{:ok, count}` where count is the number of gallery interactions
+  that were successfully migrated.
+
+  ## Parameters
+
+    - source: The source image to migrate gallery interactions from
+    - target: The target image to migrate gallery interactions to
+
+  ## Examples
+
+      iex> migrate_gallery_interactions(source_image, target_image)
+      {:ok, 3}
+
+  """
+  def migrate_gallery_interactions(source, target) do
+    # Get all gallery interactions for the source image
+    source_interactions =
+      Interaction
+      |> where(image_id: ^source.id)
+      |> select([gi], %{gallery_id: gi.gallery_id, position: gi.position})
+      |> Repo.all()
+
+    # Build new interactions for the target image
+    new_interactions =
+      Enum.map(source_interactions, fn interaction ->
+        %{
+          gallery_id: interaction.gallery_id,
+          image_id: target.id,
+          position: interaction.position
+        }
+      end)
+
+    # Insert new interactions, ignoring conflicts (if target already in gallery)
+    # Get back the gallery_ids that were actually inserted
+    {count, inserted} =
+      Repo.insert_all(Interaction, new_interactions,
+        on_conflict: :nothing,
+        returning: [:gallery_id]
+      )
+
+    # For galleries where the target was successfully added (wasn't already there),
+    # increment the image_count to offset the decrement that hide_image_multi will do.
+    # This ensures the count stays the same when replacing source with target.
+    if count > 0 do
+      inserted_gallery_ids = Enum.map(inserted, & &1.gallery_id)
+
+      Gallery
+      |> where([g], g.id in ^inserted_gallery_ids)
+      |> Repo.update_all(inc: [image_count: 1])
+    end
+
+    # Reindex all affected galleries (both where target was added and where it already existed)
+    # to update the image_ids in the search index
+    affected_gallery_ids = Enum.map(source_interactions, & &1.gallery_id)
+    reindex_galleries(affected_gallery_ids)
+
+    {:ok, count}
+  end
+
+  defp reindex_galleries([]), do: :ok
+
+  defp reindex_galleries(gallery_ids) do
+    Exq.enqueue(Exq, "indexing", IndexWorker, ["Galleries", "id", gallery_ids])
+  end
+
+  @doc """
   Removes all gallery notifications for a given gallery and user.
 
   ## Examples
